@@ -77,7 +77,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     return <BrandedLoader />;
   }
 
-  if (!currentUser || pathname === "/login") {
+  if (!currentUser || pathname === "/login" || pathname === "/features") {
     return <>{children}</>;
   }
 

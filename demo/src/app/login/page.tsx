@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useStore } from "@/store/useStore";
 import { MOCK_USERS } from "@/lib/mockData";
 import { getRoleLabel } from "@/lib/utils";
@@ -446,6 +447,16 @@ export default function LoginPage() {
                 </span>
               </p>
             </div>
+          </div>
+
+          {/* Features link */}
+          <div className="mt-6 text-center">
+            <Link
+              href="/features"
+              className="text-primary hover:underline text-sm font-medium"
+            >
+              Xem tính năng hệ thống →
+            </Link>
           </div>
         </div>
       </div>
