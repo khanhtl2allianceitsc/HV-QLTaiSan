@@ -12,6 +12,7 @@ import {
   ClipboardCheck,
   AlertTriangle,
   ListTodo,
+  Wrench,
   BarChart3,
   Settings,
   ChevronLeft,
@@ -41,6 +42,7 @@ const navItems: NavItem[] = [
   { label: "Kiểm kê",       href: "/inventory",   icon: ClipboardCheck },
   { label: "Báo hỏng",      href: "/incidents",   icon: AlertTriangle,  badgeKey: "incidents" },
   { label: "Công việc",     href: "/tasks",       icon: ListTodo,       badgeKey: "tasks" },
+  { label: "Bảo trì",      href: "/maintenance", icon: Wrench },
   { label: "Báo cáo",       href: "/reports",     icon: BarChart3 },
   { label: "Cấu hình",      href: "/settings",    icon: Settings, adminOnly: true },
 ];

@@ -32,19 +32,24 @@ const STATUS_MAP: Record<string, StatusConfig> = {
   danger:               { dot: "#DC2626", bg: "#FEE2E2", text: "#DC2626" },
   damaged:              { dot: "#DC2626", bg: "#FEE2E2", text: "#DC2626" },
   lost:                 { dot: "#DC2626", bg: "#FEE2E2", text: "#DC2626" },
+  cancelled:            { dot: "#DC2626", bg: "#FEE2E2", text: "#DC2626" },
 
   // Amber group
   needs_repair:         { dot: "#D97706", bg: "#FEF3C7", text: "#D97706" },
   at_risk:              { dot: "#D97706", bg: "#FEF3C7", text: "#D97706" },
   warning:              { dot: "#D97706", bg: "#FEF3C7", text: "#D97706" },
   open:                 { dot: "#D97706", bg: "#FEF3C7", text: "#D97706" },
-  scheduled:            { dot: "#D97706", bg: "#FEF3C7", text: "#D97706" },
+  awaiting_recipient:   { dot: "#D97706", bg: "#FEF3C7", text: "#D97706" },
+  corrective:           { dot: "#D97706", bg: "#FEF3C7", text: "#D97706" },
 
   // Blue group
   in_progress:          { dot: "#2563EB", bg: "#DBEAFE", text: "#2563EB" },
   accepted:             { dot: "#2563EB", bg: "#DBEAFE", text: "#2563EB" },
   processing:           { dot: "#2563EB", bg: "#DBEAFE", text: "#2563EB" },
   info:                 { dot: "#2563EB", bg: "#DBEAFE", text: "#2563EB" },
+  approved:             { dot: "#2563EB", bg: "#DBEAFE", text: "#2563EB" },
+  scheduled:            { dot: "#2563EB", bg: "#DBEAFE", text: "#2563EB" },
+  preventive:           { dot: "#2563EB", bg: "#DBEAFE", text: "#2563EB" },
 
   // Purple group
   waiting_confirmation: { dot: "#7C3AED", bg: "#EDE9FE", text: "#7C3AED" },
@@ -57,15 +62,6 @@ const STATUS_MAP: Record<string, StatusConfig> = {
   planned:              { dot: "#475569", bg: "#F1F5F9", text: "#475569" },
   disposed:             { dot: "#475569", bg: "#F1F5F9", text: "#475569" },
   draft:                { dot: "#475569", bg: "#F1F5F9", text: "#475569" },
-
-  // Red cancellation
-  cancelled:            { dot: "#DC2626", bg: "#FEE2E2", text: "#DC2626" },
-
-  // Blue approved
-  approved:             { dot: "#2563EB", bg: "#DBEAFE", text: "#2563EB" },
-
-  // Amber awaiting recipient
-  awaiting_recipient:   { dot: "#D97706", bg: "#FEF3C7", text: "#D97706" },
 };
 
 const DEFAULT_CONFIG: StatusConfig = {
@@ -108,6 +104,8 @@ const STATUS_LABELS: Record<string, string> = {
   approved: "Đã duyệt",
   cancelled: "Đã hủy",
   awaiting_recipient: "Chờ xác nhận",
+  preventive: "Phòng ngừa",
+  corrective: "Khắc phục",
 };
 
 export function Badge({ status, label, size = "md" }: BadgeProps) {

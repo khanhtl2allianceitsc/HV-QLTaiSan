@@ -1,7 +1,7 @@
 import type {
   User, Pharmacy, Asset, IncidentReport, Task, TaskComment,
   InventoryCycle, InventoryItem, Notification, ActivityLog,
-  AssetCategory, SlaConfig, TransferRecord,
+  AssetCategory, SlaConfig, TransferRecord, MaintenanceRecord,
 } from '@/types';
 
 // ─── Theme Colors ───────────────────────────────────────────
@@ -206,6 +206,77 @@ export const INCIDENT_TYPES = [
 ];
 
 // ─── Transfer Records ────────────────────────────────────────
+// ─── Maintenance Records ─────────────────────────────────────
+export const MOCK_MAINTENANCE: MaintenanceRecord[] = [
+  {
+    id: 'mt1', code: 'BT-001', assetId: 'a4', pharmacyId: 'ph1',
+    type: 'scheduled', description: 'Bảo dưỡng điều hòa định kỳ - vệ sinh lọc gió, kiểm tra gas',
+    scheduledDate: '2026-03-10', completedDate: '2026-03-10',
+    status: 'completed', performedById: 'u3', taskId: 'task7',
+    cost: 400000, notes: 'Đã vệ sinh lọc gió, bổ sung gas làm lạnh', createdAt: '2026-03-01T08:00:00Z',
+  },
+  {
+    id: 'mt2', code: 'BT-002', assetId: 'a3', pharmacyId: 'ph1',
+    type: 'preventive', description: 'Vệ sinh máy in, kiểm tra đầu in và bộ phận kéo giấy',
+    scheduledDate: '2026-03-15', completedDate: '2026-03-15',
+    status: 'completed', performedById: 'u4',
+    cost: 150000, notes: 'Vệ sinh đầu in, thay con lăn kéo giấy', createdAt: '2026-03-05T08:00:00Z',
+  },
+  {
+    id: 'mt3', code: 'BT-003', assetId: 'a7', pharmacyId: 'ph1',
+    type: 'scheduled', description: 'Kiểm tra hệ thống camera, vệ sinh ống kính và kiểm tra góc quay',
+    scheduledDate: '2026-01-20', completedDate: '2026-01-21',
+    status: 'completed', performedById: 'u3',
+    cost: 200000, notes: 'Điều chỉnh góc quay camera cửa chính', createdAt: '2026-01-10T08:00:00Z',
+  },
+  {
+    id: 'mt4', code: 'BT-004', assetId: 'a12', pharmacyId: 'ph2',
+    type: 'corrective', description: 'Thay filter điều hòa và bơm gas - khắc phục sau sự cố không mát',
+    scheduledDate: '2026-03-05', completedDate: '2026-03-06',
+    status: 'completed', performedById: 'u3', taskId: 'task3',
+    cost: 850000, notes: 'Thay filter, bơm thêm 200g gas R410A', createdAt: '2026-03-04T08:00:00Z',
+  },
+  {
+    id: 'mt5', code: 'BT-005', assetId: 'a25', pharmacyId: 'ph4',
+    type: 'scheduled', description: 'Bảo dưỡng điều hòa LG 24000BTU định kỳ 6 tháng',
+    scheduledDate: '2026-04-15',
+    status: 'scheduled', cost: 0, createdAt: '2026-03-31T09:00:00Z',
+  },
+  {
+    id: 'mt6', code: 'BT-006', assetId: 'a27', pharmacyId: 'ph4',
+    type: 'preventive', description: 'Kiểm tra hệ thống camera x3 - cập nhật firmware và kiểm tra lưu trữ',
+    scheduledDate: '2026-04-10',
+    status: 'scheduled', cost: 0, notes: 'Kiểm tra dung lượng ổ cứng ghi hình', createdAt: '2026-03-25T08:00:00Z',
+  },
+  {
+    id: 'mt7', code: 'BT-007', assetId: 'a19', pharmacyId: 'ph3',
+    type: 'scheduled', description: 'Vệ sinh điều hòa Panasonic 12000BTU - bảo dưỡng định kỳ quý',
+    scheduledDate: '2025-12-20', completedDate: '2025-12-22',
+    status: 'completed', performedById: 'u4',
+    cost: 350000, notes: 'Vệ sinh cục nóng, cục lạnh, kiểm tra gas', createdAt: '2025-12-10T08:00:00Z',
+  },
+  {
+    id: 'mt8', code: 'BT-008', assetId: 'a15', pharmacyId: 'ph2',
+    type: 'preventive', description: 'Kiểm tra camera an ninh trong quầy - vệ sinh ống kính',
+    scheduledDate: '2025-10-10', completedDate: '2025-10-10',
+    status: 'completed', performedById: 'u3',
+    cost: 100000, createdAt: '2025-10-01T08:00:00Z',
+  },
+  {
+    id: 'mt9', code: 'BT-009', assetId: 'a10', pharmacyId: 'ph1',
+    type: 'scheduled', description: 'Bảo dưỡng tủ thuốc lạnh - vệ sinh giàn lạnh và kiểm tra nhiệt độ',
+    scheduledDate: '2026-03-20',
+    status: 'overdue', cost: 0, notes: 'Chưa có nhân viên vận hành thực hiện', createdAt: '2026-03-10T08:00:00Z',
+  },
+  {
+    id: 'mt10', code: 'BT-010', assetId: 'a11', pharmacyId: 'ph2',
+    type: 'corrective', description: 'Vệ sinh máy tính quầy, kiểm tra phần cứng và cài đặt lại phần mềm',
+    scheduledDate: '2026-03-25',
+    status: 'in_progress', performedById: 'u4',
+    cost: 0, notes: 'Đang tiến hành', createdAt: '2026-03-24T08:00:00Z',
+  },
+];
+
 export const MOCK_TRANSFERS: TransferRecord[] = [
   {
     id: 'tr1',

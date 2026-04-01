@@ -30,6 +30,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/inventory":     "Kiểm kê",
   "/incidents":     "Báo hỏng",
   "/tasks":         "Công việc",
+  "/maintenance":   "Bảo trì thiết bị",
   "/reports":       "Báo cáo",
   "/settings":      "Cấu hình",
   "/notifications": "Thông báo",

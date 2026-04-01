@@ -3,14 +3,14 @@ import { persist } from 'zustand/middleware';
 import type {
   User, Pharmacy, Asset, IncidentReport, Task, TaskComment,
   InventoryCycle, InventoryItem, Notification, ActivityLog,
-  AssetCategory, SlaConfig, TaskStatus, TransferRecord,
+  AssetCategory, SlaConfig, TaskStatus, TransferRecord, MaintenanceRecord,
 } from '@/types';
 import type { ToastItem, ToastType } from '@/components/ui/Toast';
 import {
   MOCK_USERS, MOCK_PHARMACIES, MOCK_ASSETS, MOCK_INCIDENTS,
   MOCK_TASKS, MOCK_COMMENTS, MOCK_INVENTORY_CYCLES,
   MOCK_INVENTORY_ITEMS, MOCK_NOTIFICATIONS, MOCK_ACTIVITIES,
-  MOCK_ASSET_CATEGORIES, MOCK_SLA_CONFIGS, MOCK_TRANSFERS,
+  MOCK_ASSET_CATEGORIES, MOCK_SLA_CONFIGS, MOCK_TRANSFERS, MOCK_MAINTENANCE,
 } from '@/lib/mockData';
 
 export interface StoreState {
@@ -29,6 +29,7 @@ export interface StoreState {
   assetCategories: AssetCategory[];
   slaConfigs: SlaConfig[];
   transfers: TransferRecord[];
+  maintenance: MaintenanceRecord[];
   toasts: ToastItem[];
 
   // Auth
@@ -59,6 +60,10 @@ export interface StoreState {
   addTransfer: (transfer: TransferRecord) => void;
   updateTransfer: (id: string, updates: Partial<TransferRecord>) => void;
 
+  // Maintenance
+  addMaintenance: (record: MaintenanceRecord) => void;
+  updateMaintenance: (id: string, updates: Partial<MaintenanceRecord>) => void;
+
   // Toasts
   addToast: (type: ToastType, message: string) => void;
   dismissToast: (id: string) => void;
@@ -85,6 +90,7 @@ export const useStore = create<StoreState>()(
       assetCategories: MOCK_ASSET_CATEGORIES,
       slaConfigs: MOCK_SLA_CONFIGS,
       transfers: MOCK_TRANSFERS,
+      maintenance: MOCK_MAINTENANCE,
       toasts: [],
 
       // Auth
@@ -131,6 +137,12 @@ export const useStore = create<StoreState>()(
       addTransfer: (transfer) => set((s) => ({ transfers: [...s.transfers, transfer] })),
       updateTransfer: (id, updates) => set((s) => ({
         transfers: s.transfers.map((t) => t.id === id ? { ...t, ...updates } : t),
+      })),
+
+      // Maintenance
+      addMaintenance: (record) => set((s) => ({ maintenance: [...s.maintenance, record] })),
+      updateMaintenance: (id, updates) => set((s) => ({
+        maintenance: s.maintenance.map((m) => m.id === id ? { ...m, ...updates } : m),
       })),
 
       // Toasts

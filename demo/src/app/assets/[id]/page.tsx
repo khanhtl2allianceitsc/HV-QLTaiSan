@@ -15,12 +15,13 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { formatDate, formatCurrency, getStatusLabel } from "@/lib/utils";
 import { calcRemainingValue, calcDepreciationPercent } from "@/lib/depreciation";
 
-type TabKey = "repair" | "inventory" | "transfer";
+type TabKey = "repair" | "inventory" | "transfer" | "maintenance";
 
 const TABS: { key: TabKey; label: string; icon: React.ElementType }[] = [
-  { key: "repair",    label: "Lịch sử sửa chữa",    icon: Wrench },
-  { key: "inventory", label: "Lịch sử kiểm kê",      icon: ClipboardList },
-  { key: "transfer",  label: "Lịch sử điều chuyển",  icon: ArrowRightLeft },
+  { key: "repair",      label: "Lịch sử sửa chữa",    icon: Wrench },
+  { key: "inventory",   label: "Lịch sử kiểm kê",      icon: ClipboardList },
+  { key: "transfer",    label: "Lịch sử điều chuyển",  icon: ArrowRightLeft },
+  { key: "maintenance", label: "Lịch sử bảo trì",      icon: Wrench },
 ];
 
 const TASK_STATUS_LABEL: Record<string, string> = {
@@ -44,7 +45,7 @@ export default function AssetDetailPage() {
   const router = useRouter();
   const id = params.id as string;
 
-  const { assets, pharmacies, users, tasks, inventoryItems, inventoryCycles, transfers } = useStore();
+  const { assets, pharmacies, users, tasks, inventoryItems, inventoryCycles, transfers, maintenance } = useStore();
 
   const asset = assets.find((a) => a.id === id);
   const pharmacy = asset ? pharmacies.find((p) => p.id === asset.pharmacyId) : undefined;
@@ -53,6 +54,7 @@ export default function AssetDetailPage() {
   const assetTasks = tasks.filter((t) => t.assetId === id);
   const assetInventoryItems = inventoryItems.filter((i) => i.assetId === id);
   const assetTransfers = (transfers ?? []).filter((tr) => tr.assetId === id);
+  const assetMaintenance = (maintenance ?? []).filter((m) => m.assetId === id);
 
   const [activeTab, setActiveTab] = useState<TabKey>("repair");
 
@@ -461,6 +463,73 @@ export default function AssetDetailPage() {
                             <User size={11} />
                             Thực hiện bởi: <span className="font-medium text-text-secondary ml-0.5">{performer}</span>
                           </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Maintenance history tab */}
+      {activeTab === "maintenance" && (
+        <>
+          {assetMaintenance.length === 0 ? (
+            <Card>
+              <EmptyState
+                icon={Wrench}
+                title="Chưa có lịch sử bảo trì"
+                description="Tài sản này chưa có lịch bảo trì nào"
+              />
+            </Card>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {assetMaintenance.map((m) => {
+                const TYPE_LABELS: Record<string, string> = {
+                  scheduled: "Định kỳ",
+                  preventive: "Phòng ngừa",
+                  corrective: "Khắc phục",
+                };
+                const STATUS_LABELS: Record<string, string> = {
+                  scheduled: "Đã lên lịch",
+                  in_progress: "Đang thực hiện",
+                  completed: "Hoàn tất",
+                  overdue: "Quá hạn",
+                };
+                const performer = m.performedById ? users.find((u) => u.id === m.performedById) : undefined;
+                return (
+                  <Card key={m.id} className="p-4">
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <span className="font-mono text-xs font-semibold text-primary">{m.code}</span>
+                          <Badge status={m.type} label={TYPE_LABELS[m.type]} size="sm" />
+                          <Badge status={m.status} label={STATUS_LABELS[m.status]} size="sm" />
+                        </div>
+                        <p className="text-sm text-text-primary font-medium mb-1">{m.description}</p>
+                        <div className="flex flex-wrap gap-3 text-xs text-text-secondary mt-1">
+                          <span className="flex items-center gap-1">
+                            <Calendar size={11} />
+                            Lên lịch: {formatDate(m.scheduledDate)}
+                          </span>
+                          {m.completedDate && (
+                            <span className="flex items-center gap-1 text-success">
+                              <Calendar size={11} />
+                              Hoàn tất: {formatDate(m.completedDate)}
+                            </span>
+                          )}
+                          {performer && (
+                            <span className="flex items-center gap-1">
+                              <User size={11} />
+                              {performer.name}
+                            </span>
+                          )}
+                          {m.cost > 0 && (
+                            <span className="text-warning font-medium">{formatCurrency(m.cost)}</span>
+                          )}
                         </div>
                       </div>
                     </div>

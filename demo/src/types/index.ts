@@ -184,6 +184,23 @@ export interface TransferRecord {
   recipientNotes?: string;
 }
 
+export interface MaintenanceRecord {
+  id: string;
+  code: string; // e.g. "BT-001"
+  assetId: string;
+  pharmacyId: string;
+  type: 'scheduled' | 'preventive' | 'corrective'; // định kỳ | phòng ngừa | khắc phục
+  description: string;
+  scheduledDate: string;
+  completedDate?: string;
+  status: 'scheduled' | 'in_progress' | 'completed' | 'overdue';
+  performedById?: string;
+  taskId?: string; // linked task
+  cost: number;
+  notes?: string;
+  createdAt: string;
+}
+
 // For the settings/config
 export interface AssetCategory {
   id: string;
