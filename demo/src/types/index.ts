@@ -158,6 +158,19 @@ export interface ActivityLog {
   timestamp: string;
 }
 
+export interface TransferRecord {
+  id: string;
+  assetId: string;
+  type: 'pharmacy_transfer' | 'responsibility_transfer';
+  fromPharmacyId?: string;
+  toPharmacyId?: string;
+  fromUserId?: string;
+  toUserId?: string;
+  reason: string;
+  transferDate: string;
+  performedById: string;
+}
+
 // For the settings/config
 export interface AssetCategory {
   id: string;

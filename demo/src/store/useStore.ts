@@ -3,14 +3,14 @@ import { persist } from 'zustand/middleware';
 import type {
   User, Pharmacy, Asset, IncidentReport, Task, TaskComment,
   InventoryCycle, InventoryItem, Notification, ActivityLog,
-  AssetCategory, SlaConfig, TaskStatus,
+  AssetCategory, SlaConfig, TaskStatus, TransferRecord,
 } from '@/types';
 import type { ToastItem, ToastType } from '@/components/ui/Toast';
 import {
   MOCK_USERS, MOCK_PHARMACIES, MOCK_ASSETS, MOCK_INCIDENTS,
   MOCK_TASKS, MOCK_COMMENTS, MOCK_INVENTORY_CYCLES,
   MOCK_INVENTORY_ITEMS, MOCK_NOTIFICATIONS, MOCK_ACTIVITIES,
-  MOCK_ASSET_CATEGORIES, MOCK_SLA_CONFIGS,
+  MOCK_ASSET_CATEGORIES, MOCK_SLA_CONFIGS, MOCK_TRANSFERS,
 } from '@/lib/mockData';
 
 export interface StoreState {
@@ -28,6 +28,7 @@ export interface StoreState {
   activities: ActivityLog[];
   assetCategories: AssetCategory[];
   slaConfigs: SlaConfig[];
+  transfers: TransferRecord[];
   toasts: ToastItem[];
 
   // Auth
@@ -79,6 +80,7 @@ export const useStore = create<StoreState>()(
       activities: MOCK_ACTIVITIES,
       assetCategories: MOCK_ASSET_CATEGORIES,
       slaConfigs: MOCK_SLA_CONFIGS,
+      transfers: MOCK_TRANSFERS,
       toasts: [],
 
       // Auth

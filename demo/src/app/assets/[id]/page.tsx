@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft, Package, Building2, MapPin, Calendar,
   User, Wrench, ClipboardList, QrCode, DollarSign, Clock,
+  ArrowRightLeft,
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { Card } from "@/components/ui/Card";
@@ -13,11 +14,12 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatDate, formatCurrency, getStatusLabel } from "@/lib/utils";
 
-type TabKey = "repair" | "inventory";
+type TabKey = "repair" | "inventory" | "transfer";
 
 const TABS: { key: TabKey; label: string; icon: React.ElementType }[] = [
-  { key: "repair", label: "Lịch sử sửa chữa", icon: Wrench },
-  { key: "inventory", label: "Lịch sử kiểm kê", icon: ClipboardList },
+  { key: "repair",    label: "Lịch sử sửa chữa",    icon: Wrench },
+  { key: "inventory", label: "Lịch sử kiểm kê",      icon: ClipboardList },
+  { key: "transfer",  label: "Lịch sử điều chuyển",  icon: ArrowRightLeft },
 ];
 
 const TASK_STATUS_LABEL: Record<string, string> = {
@@ -41,7 +43,7 @@ export default function AssetDetailPage() {
   const router = useRouter();
   const id = params.id as string;
 
-  const { assets, pharmacies, users, tasks, inventoryItems, inventoryCycles } = useStore();
+  const { assets, pharmacies, users, tasks, inventoryItems, inventoryCycles, transfers } = useStore();
 
   const asset = assets.find((a) => a.id === id);
   const pharmacy = asset ? pharmacies.find((p) => p.id === asset.pharmacyId) : undefined;
@@ -49,6 +51,7 @@ export default function AssetDetailPage() {
 
   const assetTasks = tasks.filter((t) => t.assetId === id);
   const assetInventoryItems = inventoryItems.filter((i) => i.assetId === id);
+  const assetTransfers = (transfers ?? []).filter((tr) => tr.assetId === id);
 
   const [activeTab, setActiveTab] = useState<TabKey>("repair");
 
@@ -74,6 +77,12 @@ export default function AssetDetailPage() {
 
   const getCycleName = (cycleId: string) =>
     inventoryCycles.find((c) => c.id === cycleId)?.name ?? cycleId;
+
+  const getPharmacyName = (pharmacyId?: string) =>
+    pharmacyId ? pharmacies.find((p) => p.id === pharmacyId)?.name ?? pharmacyId : "—";
+
+  const getUserName = (userId?: string) =>
+    userId ? users.find((u) => u.id === userId)?.name ?? userId : "—";
 
   return (
     <div className="flex flex-col gap-6">
@@ -336,6 +345,89 @@ export default function AssetDetailPage() {
                         label={INVENTORY_STATUS_LABEL[item.checkStatus]}
                         size="sm"
                       />
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Transfer history tab */}
+      {activeTab === "transfer" && (
+        <>
+          {assetTransfers.length === 0 ? (
+            <Card>
+              <EmptyState
+                icon={ArrowRightLeft}
+                title="Chưa có lịch sử điều chuyển"
+                description="Tài sản này chưa được điều chuyển hoặc thay đổi phụ trách"
+              />
+            </Card>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {assetTransfers.map((tr) => {
+                const isPharmacy = tr.type === "pharmacy_transfer";
+                const performer  = getUserName(tr.performedById);
+                return (
+                  <Card key={tr.id} className="p-4">
+                    <div className="flex items-start gap-4">
+                      {/* Type badge column */}
+                      <div className="flex-shrink-0 pt-0.5">
+                        {isPharmacy ? (
+                          <span
+                            className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                            style={{ backgroundColor: "#DBEAFE", color: "#2563EB" }}
+                          >
+                            <ArrowRightLeft size={11} />
+                            Điều chuyển quầy
+                          </span>
+                        ) : (
+                          <span
+                            className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                            style={{ backgroundColor: "#EDE9FE", color: "#7C3AED" }}
+                          >
+                            <User size={11} />
+                            Đổi phụ trách
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Main content */}
+                      <div className="flex-1 min-w-0">
+                        {/* From → To */}
+                        <div className="flex items-center gap-2 flex-wrap mb-2">
+                          <span className="text-sm text-text-secondary">
+                            {isPharmacy
+                              ? getPharmacyName(tr.fromPharmacyId)
+                              : getUserName(tr.fromUserId)}
+                          </span>
+                          <ArrowRightLeft size={13} className="text-text-tertiary flex-shrink-0" />
+                          <span className="text-sm font-semibold text-text-primary">
+                            {isPharmacy
+                              ? getPharmacyName(tr.toPharmacyId)
+                              : getUserName(tr.toUserId)}
+                          </span>
+                        </div>
+
+                        {/* Reason */}
+                        <p className="text-xs text-text-secondary leading-relaxed mb-2">
+                          {tr.reason}
+                        </p>
+
+                        {/* Meta row */}
+                        <div className="flex flex-wrap gap-3 text-xs text-text-tertiary">
+                          <span className="flex items-center gap-1">
+                            <Calendar size={11} />
+                            {formatDate(tr.transferDate)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <User size={11} />
+                            Thực hiện bởi: <span className="font-medium text-text-secondary ml-0.5">{performer}</span>
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </Card>
                 );

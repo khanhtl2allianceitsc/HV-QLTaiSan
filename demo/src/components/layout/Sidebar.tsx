@@ -16,6 +16,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  UserCircle,
 } from "lucide-react";
 
 /* ─── Types ──────────────────────────────────────────────────── */
@@ -31,14 +32,15 @@ interface NavItem {
 /* ─── Nav config ─────────────────────────────────────────────── */
 
 const navItems: NavItem[] = [
-  { label: "Tổng quan",  href: "/",           icon: LayoutDashboard },
-  { label: "Quầy thuốc", href: "/pharmacies",  icon: Store },
-  { label: "Tài sản",    href: "/assets",      icon: Package },
-  { label: "Kiểm kê",   href: "/inventory",   icon: ClipboardCheck },
-  { label: "Báo hỏng",  href: "/incidents",   icon: AlertTriangle,  badgeKey: "incidents" },
-  { label: "Công việc",  href: "/tasks",       icon: ListTodo,       badgeKey: "tasks" },
-  { label: "Báo cáo",   href: "/reports",     icon: BarChart3 },
-  { label: "Cấu hình",  href: "/settings",    icon: Settings, adminOnly: true },
+  { label: "Tổng quan",      href: "/",           icon: LayoutDashboard },
+  { label: "Quầy thuốc",    href: "/pharmacies",  icon: Store },
+  { label: "Tài sản",       href: "/assets",      icon: Package },
+  { label: "Tài sản của tôi", href: "/my-assets", icon: UserCircle },
+  { label: "Kiểm kê",       href: "/inventory",   icon: ClipboardCheck },
+  { label: "Báo hỏng",      href: "/incidents",   icon: AlertTriangle,  badgeKey: "incidents" },
+  { label: "Công việc",     href: "/tasks",       icon: ListTodo,       badgeKey: "tasks" },
+  { label: "Báo cáo",       href: "/reports",     icon: BarChart3 },
+  { label: "Cấu hình",      href: "/settings",    icon: Settings, adminOnly: true },
 ];
 
 /* ─── Role labels (Vietnamese) ───────────────────────────────── */

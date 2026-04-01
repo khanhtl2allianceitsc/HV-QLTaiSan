@@ -1,7 +1,7 @@
 import type {
   User, Pharmacy, Asset, IncidentReport, Task, TaskComment,
   InventoryCycle, InventoryItem, Notification, ActivityLog,
-  AssetCategory, SlaConfig,
+  AssetCategory, SlaConfig, TransferRecord,
 } from '@/types';
 
 // ─── Theme Colors ───────────────────────────────────────────
@@ -185,4 +185,68 @@ export const MOCK_SLA_CONFIGS: SlaConfig[] = [
 export const INCIDENT_TYPES = [
   'Hư hỏng thiết bị', 'Rò rỉ nước', 'Sự cố điện', 'Hỏng nội thất',
   'Lỗi mạng/Internet', 'Hỏng camera', 'Vấn đề điều hòa', 'Khác',
+];
+
+// ─── Transfer Records ────────────────────────────────────────
+export const MOCK_TRANSFERS: TransferRecord[] = [
+  {
+    id: 'tr1',
+    assetId: 'a28',
+    type: 'pharmacy_transfer',
+    fromPharmacyId: 'ph5',
+    toPharmacyId: 'ph4',
+    reason: 'Nhà thuốc Phan Xích Long tạm ngừng hoạt động, điều chuyển tài sản sang Hai Bà Trưng để sử dụng',
+    transferDate: '2025-11-10',
+    performedById: 'u1',
+  },
+  {
+    id: 'tr2',
+    assetId: 'a3',
+    type: 'responsibility_transfer',
+    fromUserId: 'u5',
+    toUserId: 'u8',
+    reason: 'Bàn giao phụ trách máy in cho nhân viên kiểm kê trong thời gian sửa chữa định kỳ',
+    transferDate: '2025-10-20',
+    performedById: 'u2',
+  },
+  {
+    id: 'tr3',
+    assetId: 'a12',
+    type: 'responsibility_transfer',
+    fromUserId: 'u6',
+    toUserId: 'u3',
+    reason: 'Điều hòa hỏng nặng, chuyển phụ trách sang bộ phận vận hành để theo dõi sửa chữa',
+    transferDate: '2025-09-15',
+    performedById: 'u2',
+  },
+  {
+    id: 'tr4',
+    assetId: 'a29',
+    type: 'pharmacy_transfer',
+    fromPharmacyId: 'ph5',
+    toPharmacyId: 'ph3',
+    reason: 'Điều phối kệ trưng bày từ chi nhánh ngừng hoạt động sang chi nhánh CMT8 đang cần bổ sung',
+    transferDate: '2025-11-12',
+    performedById: 'u1',
+  },
+  {
+    id: 'tr5',
+    assetId: 'a21',
+    type: 'responsibility_transfer',
+    fromUserId: 'u7',
+    toUserId: 'u4',
+    reason: 'Bảng hiệu LED cần sửa chữa chuyên sâu, bàn giao cho vận hành xử lý',
+    transferDate: '2025-08-05',
+    performedById: 'u2',
+  },
+  {
+    id: 'tr6',
+    assetId: 'a9',
+    type: 'pharmacy_transfer',
+    fromPharmacyId: 'ph1',
+    toPharmacyId: 'ph2',
+    reason: 'Máy quét mã vạch ph1 hỏng, tạm điều chuyển đơn vị dự phòng từ kho sang ph2 đang thiếu',
+    transferDate: '2025-07-22',
+    performedById: 'u1',
+  },
 ];
