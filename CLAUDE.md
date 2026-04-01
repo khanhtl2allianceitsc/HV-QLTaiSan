@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Context
 
-**HV-QLTaiSan** — Web app for asset management & incident operations for a pharmacy chain (chuỗi nhà thuốc). Currently in pre-development phase; the repo holds only the PRD/UX brief.
+**HV-QLTaiSan** — Web app for asset management & incident operations for a pharmacy chain (chuỗi nhà thuốc Hồng Vân). Currently in pre-development phase; the repo holds only the PRD/UX brief.
 
 Primary specification: `docs/mockup_brief_asset_management_pharmacy_chain.md`
 

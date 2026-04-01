@@ -120,7 +120,7 @@ function CycleCard({ cycle, inventoryItems, pharmacies, onClick }: CycleCardProp
           <p className="text-sm text-text-secondary mt-1">
             {cyclePharmacies.length} nhà thuốc:{" "}
             <span className="text-text-primary">
-              {cyclePharmacies.map((p) => p.name.replace("Nhà thuốc Hoàng Việt - ", "")).join(", ")}
+              {cyclePharmacies.map((p) => p.name.replace("Nhà thuốc Hồng Vân - ", "")).join(", ")}
             </span>
           </p>
         </div>

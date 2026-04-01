@@ -26,11 +26,11 @@ export const MOCK_USERS: User[] = [
 
 // ─── Pharmacies ─────────────────────────────────────────────
 export const MOCK_PHARMACIES: Pharmacy[] = [
-  { id: 'ph1', name: 'Nhà thuốc Hoàng Việt - Nguyễn Trãi', address: '123 Nguyễn Trãi, Q.5, TP.HCM', phone: '028 3800 0001', managerId: 'u5', assetCount: 15, status: 'active' },
-  { id: 'ph2', name: 'Nhà thuốc Hoàng Việt - Lê Văn Sỹ', address: '456 Lê Văn Sỹ, Q.3, TP.HCM', phone: '028 3800 0002', managerId: 'u6', assetCount: 12, status: 'active' },
-  { id: 'ph3', name: 'Nhà thuốc Hoàng Việt - Cách Mạng T8', address: '789 CMT8, Q.10, TP.HCM', phone: '028 3800 0003', managerId: 'u7', assetCount: 10, status: 'active' },
-  { id: 'ph4', name: 'Nhà thuốc Hoàng Việt - Hai Bà Trưng', address: '321 Hai Bà Trưng, Q.1, TP.HCM', phone: '028 3800 0004', managerId: 'u10', assetCount: 14, status: 'active' },
-  { id: 'ph5', name: 'Nhà thuốc Hoàng Việt - Phan Xích Long', address: '55 Phan Xích Long, Phú Nhuận, TP.HCM', phone: '028 3800 0005', managerId: 'u10', assetCount: 8, status: 'inactive' },
+  { id: 'ph1', name: 'Nhà thuốc Hồng Vân - Nguyễn Trãi', address: '123 Nguyễn Trãi, Q.5, TP.HCM', phone: '028 3800 0001', managerId: 'u5', assetCount: 15, status: 'active' },
+  { id: 'ph2', name: 'Nhà thuốc Hồng Vân - Lê Văn Sỹ', address: '456 Lê Văn Sỹ, Q.3, TP.HCM', phone: '028 3800 0002', managerId: 'u6', assetCount: 12, status: 'active' },
+  { id: 'ph3', name: 'Nhà thuốc Hồng Vân - Cách Mạng T8', address: '789 CMT8, Q.10, TP.HCM', phone: '028 3800 0003', managerId: 'u7', assetCount: 10, status: 'active' },
+  { id: 'ph4', name: 'Nhà thuốc Hồng Vân - Hai Bà Trưng', address: '321 Hai Bà Trưng, Q.1, TP.HCM', phone: '028 3800 0004', managerId: 'u10', assetCount: 14, status: 'active' },
+  { id: 'ph5', name: 'Nhà thuốc Hồng Vân - Phan Xích Long', address: '55 Phan Xích Long, Phú Nhuận, TP.HCM', phone: '028 3800 0005', managerId: 'u10', assetCount: 8, status: 'inactive' },
 ];
 
 // ─── Assets ─────────────────────────────────────────────────

@@ -888,7 +888,7 @@ function NotAuthenticatedState() {
       >
         <Store className="w-8 h-8 text-primary" />
       </div>
-      <h1 className="text-xl font-bold text-text-primary mb-2">HV QL Tài Sản</h1>
+      <h1 className="text-xl font-bold text-text-primary mb-2">Hồng Vân - QL Tài Sản</h1>
       <p className="text-text-secondary text-sm mb-6 max-w-xs">
         Vui lòng đăng nhập để truy cập hệ thống quản lý tài sản
       </p>

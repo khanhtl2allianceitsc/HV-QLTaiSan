@@ -138,7 +138,7 @@ function CostTab({
     .map((p) => {
       const pharmTasks = tasks.filter((t) => t.pharmacyId === p.id);
       return {
-        name: p.name.replace("Nhà thuốc Hoàng Việt - ", ""),
+        name: p.name.replace("Nhà thuốc Hồng Vân - ", ""),
         estimated: pharmTasks.reduce((s, t) => s + t.estimatedCost, 0),
         actual: pharmTasks.reduce((s, t) => s + t.actualCost, 0),
       };

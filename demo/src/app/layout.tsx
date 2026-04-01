@@ -10,8 +10,8 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
-  title: "HV QLTaiSan - Quản Lý Tài Sản",
-  description: "Hệ thống quản lý tài sản chuỗi nhà thuốc Hoàng Việt",
+  title: "Hồng Vân - Quản Lý Tài Sản",
+  description: "Hệ thống quản lý tài sản chuỗi nhà thuốc Hồng Vân",
 };
 
 export default function RootLayout({

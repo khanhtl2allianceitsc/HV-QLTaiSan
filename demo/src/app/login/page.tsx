@@ -133,7 +133,7 @@ export default function LoginPage() {
               HV
             </div>
             <div>
-              <p className="text-white font-bold text-base leading-tight">Hoàng Việt</p>
+              <p className="text-white font-bold text-base leading-tight">Hồng Vân</p>
               <p className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
                 Pharma Chain
               </p>

@@ -100,7 +100,7 @@ export function Sidebar() {
               QL Tài Sản
             </p>
             <p className="text-[11px] text-text-tertiary whitespace-nowrap font-medium">
-              Hoàng Việt
+              Hồng Vân
             </p>
           </div>
         )}
