@@ -46,6 +46,8 @@ export const MOCK_ASSETS: Asset[] = [
   { id: 'a8', code: 'TS-008', name: 'Router WiFi TP-Link', category: 'Thiết bị mạng', type: 'Router', pharmacyId: 'ph1', location: 'Phòng kho', status: 'active', originalCost: 1200000, depreciationMonths: 36, installDate: '2024-02-01', responsibleUserId: 'u5', totalRepairCost: 0 },
   { id: 'a9', code: 'TS-009', name: 'Máy quét mã vạch', category: 'Thiết bị IT', type: 'Máy quét', pharmacyId: 'ph1', location: 'Quầy thu ngân', status: 'broken', originalCost: 2500000, depreciationMonths: 36, installDate: '2024-01-15', responsibleUserId: 'u5', totalRepairCost: 350000 },
   { id: 'a10', code: 'TS-010', name: 'Tủ thuốc lạnh', category: 'Thiết bị y tế', type: 'Tủ lạnh', pharmacyId: 'ph1', location: 'Phòng kho', status: 'active', originalCost: 18000000, depreciationMonths: 60, installDate: '2023-09-15', responsibleUserId: 'u5', totalRepairCost: 0 },
+  { id: 'a33', code: 'TS-033', name: 'Bàn phím Dell KB216', category: 'Thiết bị IT', type: 'Bàn phím', pharmacyId: 'ph1', location: 'Quầy thu ngân', status: 'active', originalCost: 280000, depreciationMonths: 24, installDate: '2024-01-15', responsibleUserId: 'u5', totalRepairCost: 0 },
+  { id: 'a34', code: 'TS-034', name: 'Chuột Dell MS116', category: 'Thiết bị IT', type: 'Chuột', pharmacyId: 'ph1', location: 'Quầy thu ngân', status: 'active', originalCost: 120000, depreciationMonths: 24, installDate: '2024-01-15', responsibleUserId: 'u5', totalRepairCost: 0 },
 
   // Pharmacy 2 (ph2)
   { id: 'a11', code: 'TS-011', name: 'Máy tính quầy 1', category: 'Thiết bị IT', type: 'Máy tính', pharmacyId: 'ph2', location: 'Quầy thu ngân', status: 'active', originalCost: 12000000, depreciationMonths: 36, installDate: '2024-02-01', responsibleUserId: 'u6', totalRepairCost: 0 },
@@ -54,7 +56,9 @@ export const MOCK_ASSETS: Asset[] = [
   { id: 'a14', code: 'TS-014', name: 'Bồn rửa tay', category: 'Hạ tầng', type: 'Bồn rửa', pharmacyId: 'ph2', location: 'Khu vệ sinh', status: 'broken', originalCost: 1500000, depreciationMonths: 60, installDate: '2023-04-20', responsibleUserId: 'u6', totalRepairCost: 200000 },
   { id: 'a15', code: 'TS-015', name: 'Camera an ninh - Trong quầy', category: 'An ninh', type: 'Camera', pharmacyId: 'ph2', location: 'Trong quầy', status: 'active', originalCost: 2800000, depreciationMonths: 36, installDate: '2024-01-10', responsibleUserId: 'u6', totalRepairCost: 0 },
   { id: 'a16', code: 'TS-016', name: 'Máy in hóa đơn', category: 'Thiết bị IT', type: 'Máy in', pharmacyId: 'ph2', location: 'Quầy thu ngân', status: 'active', originalCost: 3200000, depreciationMonths: 36, installDate: '2024-02-01', responsibleUserId: 'u6', totalRepairCost: 0 },
-  { id: 'a17', code: 'TS-017', name: 'Bàn phím + Chuột', category: 'Thiết bị IT', type: 'Phụ kiện', pharmacyId: 'ph2', location: 'Quầy thu ngân', status: 'active', originalCost: 650000, depreciationMonths: 24, installDate: '2024-02-01', responsibleUserId: 'u6', totalRepairCost: 0 },
+  { id: 'a17', code: 'TS-017', name: 'Bàn phím Logitech K120', category: 'Thiết bị IT', type: 'Bàn phím', pharmacyId: 'ph2', location: 'Quầy thu ngân', status: 'active', originalCost: 350000, depreciationMonths: 24, installDate: '2024-02-01', responsibleUserId: 'u6', totalRepairCost: 0 },
+  { id: 'a31', code: 'TS-031', name: 'Chuột Logitech M100', category: 'Thiết bị IT', type: 'Chuột', pharmacyId: 'ph2', location: 'Quầy thu ngân', status: 'active', originalCost: 150000, depreciationMonths: 24, installDate: '2024-02-01', responsibleUserId: 'u6', totalRepairCost: 0 },
+  { id: 'a32', code: 'TS-032', name: 'Màn hình Dell 24inch', category: 'Thiết bị IT', type: 'Màn hình', pharmacyId: 'ph2', location: 'Quầy thu ngân', status: 'active', originalCost: 4500000, depreciationMonths: 36, installDate: '2024-02-01', responsibleUserId: 'u6', totalRepairCost: 0 },
 
   // Pharmacy 3 (ph3)
   { id: 'a18', code: 'TS-018', name: 'Máy tính quầy 1', category: 'Thiết bị IT', type: 'Máy tính', pharmacyId: 'ph3', location: 'Quầy thu ngân', status: 'active', originalCost: 12000000, depreciationMonths: 36, installDate: '2024-03-01', responsibleUserId: 'u7', totalRepairCost: 0 },
@@ -62,6 +66,9 @@ export const MOCK_ASSETS: Asset[] = [
   { id: 'a20', code: 'TS-020', name: 'Kệ trưng bày A', category: 'Nội thất', type: 'Kệ', pharmacyId: 'ph3', location: 'Khu vực bán hàng', status: 'active', originalCost: 8500000, depreciationMonths: 60, installDate: '2024-03-01', responsibleUserId: 'u7', totalRepairCost: 0 },
   { id: 'a21', code: 'TS-021', name: 'Bảng hiệu LED', category: 'Hạ tầng', type: 'Bảng hiệu', pharmacyId: 'ph3', location: 'Mặt tiền', status: 'needs_repair', originalCost: 12000000, depreciationMonths: 36, installDate: '2023-12-01', responsibleUserId: 'u7', totalRepairCost: 600000 },
   { id: 'a22', code: 'TS-022', name: 'Ghế nhân viên', category: 'Nội thất', type: 'Ghế', pharmacyId: 'ph3', location: 'Quầy thu ngân', status: 'active', originalCost: 2200000, depreciationMonths: 60, installDate: '2024-03-01', responsibleUserId: 'u7', totalRepairCost: 0 },
+  { id: 'a35', code: 'TS-035', name: 'Màn hình Samsung 22inch', category: 'Thiết bị IT', type: 'Màn hình', pharmacyId: 'ph3', location: 'Quầy thu ngân', status: 'active', originalCost: 3800000, depreciationMonths: 36, installDate: '2024-03-01', responsibleUserId: 'u7', totalRepairCost: 0 },
+  { id: 'a36', code: 'TS-036', name: 'Bàn phím Rapoo K2800', category: 'Thiết bị IT', type: 'Bàn phím', pharmacyId: 'ph3', location: 'Quầy thu ngân', status: 'active', originalCost: 320000, depreciationMonths: 24, installDate: '2024-03-01', responsibleUserId: 'u7', totalRepairCost: 0 },
+  { id: 'a37', code: 'TS-037', name: 'Chuột Rapoo M10', category: 'Thiết bị IT', type: 'Chuột', pharmacyId: 'ph3', location: 'Quầy thu ngân', status: 'active', originalCost: 130000, depreciationMonths: 24, installDate: '2024-03-01', responsibleUserId: 'u7', totalRepairCost: 0 },
 
   // Pharmacy 4 (ph4)
   { id: 'a23', code: 'TS-023', name: 'Máy tính quầy 1', category: 'Thiết bị IT', type: 'Máy tính', pharmacyId: 'ph4', location: 'Quầy thu ngân', status: 'active', originalCost: 12000000, depreciationMonths: 36, installDate: '2024-01-20', responsibleUserId: 'u10', totalRepairCost: 0 },
@@ -69,6 +76,12 @@ export const MOCK_ASSETS: Asset[] = [
   { id: 'a25', code: 'TS-025', name: 'Điều hòa LG 24000BTU', category: 'Điện lạnh', type: 'Điều hòa', pharmacyId: 'ph4', location: 'Khu vực bán hàng', status: 'active', originalCost: 22000000, depreciationMonths: 60, installDate: '2023-08-15', responsibleUserId: 'u10', totalRepairCost: 500000 },
   { id: 'a26', code: 'TS-026', name: 'Hệ thống ống nước', category: 'Hạ tầng', type: 'Ống nước', pharmacyId: 'ph4', location: 'Khu vệ sinh', status: 'needs_repair', originalCost: 5000000, depreciationMonths: 60, installDate: '2022-01-01', responsibleUserId: 'u10', totalRepairCost: 1500000 },
   { id: 'a27', code: 'TS-027', name: 'Camera an ninh x3', category: 'An ninh', type: 'Camera', pharmacyId: 'ph4', location: 'Cửa chính + Trong quầy', status: 'active', originalCost: 8400000, depreciationMonths: 36, installDate: '2024-01-20', responsibleUserId: 'u10', totalRepairCost: 0 },
+  { id: 'a38', code: 'TS-038', name: 'Màn hình LG 24inch', category: 'Thiết bị IT', type: 'Màn hình', pharmacyId: 'ph4', location: 'Quầy thu ngân', status: 'active', originalCost: 4200000, depreciationMonths: 36, installDate: '2024-01-20', responsibleUserId: 'u10', totalRepairCost: 0 },
+  { id: 'a39', code: 'TS-039', name: 'Màn hình LG 24inch', category: 'Thiết bị IT', type: 'Màn hình', pharmacyId: 'ph4', location: 'Quầy tư vấn', status: 'active', originalCost: 4200000, depreciationMonths: 36, installDate: '2024-01-20', responsibleUserId: 'u10', totalRepairCost: 0 },
+  { id: 'a40', code: 'TS-040', name: 'Bàn phím HP KM10', category: 'Thiết bị IT', type: 'Bàn phím', pharmacyId: 'ph4', location: 'Quầy thu ngân', status: 'active', originalCost: 300000, depreciationMonths: 24, installDate: '2024-01-20', responsibleUserId: 'u10', totalRepairCost: 0 },
+  { id: 'a41', code: 'TS-041', name: 'Chuột HP M10', category: 'Thiết bị IT', type: 'Chuột', pharmacyId: 'ph4', location: 'Quầy thu ngân', status: 'active', originalCost: 130000, depreciationMonths: 24, installDate: '2024-01-20', responsibleUserId: 'u10', totalRepairCost: 0 },
+  { id: 'a42', code: 'TS-042', name: 'Bàn phím HP KM10', category: 'Thiết bị IT', type: 'Bàn phím', pharmacyId: 'ph4', location: 'Quầy tư vấn', status: 'active', originalCost: 300000, depreciationMonths: 24, installDate: '2024-01-20', responsibleUserId: 'u10', totalRepairCost: 0 },
+  { id: 'a43', code: 'TS-043', name: 'Chuột HP M10', category: 'Thiết bị IT', type: 'Chuột', pharmacyId: 'ph4', location: 'Quầy tư vấn', status: 'active', originalCost: 130000, depreciationMonths: 24, installDate: '2024-01-20', responsibleUserId: 'u10', totalRepairCost: 0 },
 
   // Pharmacy 5 (ph5)
   { id: 'a28', code: 'TS-028', name: 'Máy tính quầy', category: 'Thiết bị IT', type: 'Máy tính', pharmacyId: 'ph5', location: 'Quầy thu ngân', status: 'inactive', originalCost: 12000000, depreciationMonths: 36, installDate: '2023-06-01', responsibleUserId: 'u10', totalRepairCost: 0 },
@@ -167,7 +180,7 @@ export const MOCK_ACTIVITIES: ActivityLog[] = [
 
 // ─── Config / Catalog Data ──────────────────────────────────
 export const MOCK_ASSET_CATEGORIES: AssetCategory[] = [
-  { id: 'cat1', name: 'Thiết bị IT', types: ['Máy tính', 'Màn hình', 'Máy in', 'Máy quét', 'Phụ kiện'] },
+  { id: 'cat1', name: 'Thiết bị IT', types: ['Máy tính', 'Màn hình', 'Máy in', 'Máy quét', 'Bàn phím', 'Chuột'] },
   { id: 'cat2', name: 'Điện lạnh', types: ['Điều hòa', 'Quạt'] },
   { id: 'cat3', name: 'Nội thất', types: ['Kệ', 'Tủ', 'Bàn', 'Ghế'] },
   { id: 'cat4', name: 'An ninh', types: ['Camera', 'Cửa từ'] },
