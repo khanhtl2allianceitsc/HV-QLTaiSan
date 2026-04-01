@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { type LucideIcon } from "lucide-react";
 import { Button } from "./Button";
 
@@ -15,6 +16,10 @@ interface EmptyStateProps {
   description?: string;
   action?: EmptyStateAction;
   className?: string;
+  /** Override the icon background color; defaults to primary-light */
+  iconBg?: string;
+  /** Override the icon color; defaults to text-primary */
+  iconColor?: string;
 }
 
 export function EmptyState({
@@ -23,28 +28,44 @@ export function EmptyState({
   description,
   action,
   className = "",
+  iconBg,
+  iconColor,
 }: EmptyStateProps) {
   return (
     <div
       className={[
-        "flex flex-col items-center justify-center text-center py-16 px-6",
+        "flex flex-col items-center justify-center text-center py-16 px-8",
         className,
       ].join(" ")}
     >
-      {/* Icon container */}
-      <div className="w-16 h-16 rounded-2xl bg-page-bg flex items-center justify-center mb-4">
-        <Icon size={28} className="text-text-secondary/40" strokeWidth={1.5} />
+      {/* Icon in soft circle */}
+      <div
+        className="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5"
+        style={{ backgroundColor: iconBg ?? "var(--primary-light)" }}
+      >
+        <Icon
+          size={32}
+          strokeWidth={1.5}
+          className={iconColor ?? "text-primary"}
+          style={{ color: iconColor ? undefined : "var(--primary)" }}
+        />
       </div>
 
-      {/* Text */}
-      <h3 className="text-sm font-semibold text-text-primary mb-1.5">{title}</h3>
+      {/* Title */}
+      <h3 className="text-lg font-semibold text-text-primary mb-2 leading-snug">
+        {title}
+      </h3>
+
+      {/* Description */}
       {description && (
-        <p className="text-sm text-text-secondary max-w-xs">{description}</p>
+        <p className="text-sm text-text-secondary max-w-sm leading-relaxed">
+          {description}
+        </p>
       )}
 
       {/* CTA */}
       {action && (
-        <div className="mt-5">
+        <div className="mt-6">
           <Button
             variant={action.variant ?? "primary"}
             size="md"

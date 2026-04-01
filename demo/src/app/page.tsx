@@ -23,48 +23,158 @@ import {
   ShieldAlert,
   Kanban,
 } from "lucide-react";
-import { formatDateTime, getStatusLabel, getRoleLabel, timeAgo } from "@/lib/utils";
+import { getRoleLabel, timeAgo } from "@/lib/utils";
 import type { UserRole } from "@/types";
 
-// ─── Stat Card ──────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatVietnameseDate(date: Date): string {
+  return date.toLocaleDateString("vi-VN", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+// ─── Enhanced Stat Card ───────────────────────────────────────────────────────
 
 interface StatCardProps {
   icon: React.ReactNode;
   label: string;
   value: number | string;
-  iconBg: string;
-  valueColor?: string;
+  accentColor: string;        // CSS color for left bar + icon bg tint
+  iconBg: string;             // Tailwind class
+  valueColor?: string;        // Tailwind class
+  change?: { value: string; positive: boolean };
   onClick?: () => void;
 }
 
-function StatCard({ icon, label, value, iconBg, valueColor = "text-text-primary", onClick }: StatCardProps) {
+function StatCard({
+  icon,
+  label,
+  value,
+  accentColor,
+  iconBg,
+  valueColor = "text-text-primary",
+  change,
+  onClick,
+}: StatCardProps) {
   return (
-    <Card className="p-5" onClick={onClick}>
-      <div className="flex items-start gap-4">
-        <div className={["w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0", iconBg].join(" ")}>
+    <div
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") onClick(); } : undefined}
+      className={[
+        "bg-surface rounded-xl border border-border-color flex overflow-hidden transition-all duration-200",
+        onClick
+          ? "cursor-pointer hover:shadow-[0_6px_20px_rgba(0,0,0,0.10)] hover:-translate-y-0.5"
+          : "",
+        "shadow-[0_1px_4px_rgba(0,0,0,0.05)]",
+      ].join(" ")}
+    >
+      {/* Left accent bar */}
+      <div
+        className="w-1 flex-shrink-0 rounded-l-xl"
+        style={{ background: accentColor }}
+      />
+      <div className="flex items-center gap-4 p-5 flex-1 min-w-0">
+        <div
+          className={["w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0", iconBg].join(" ")}
+        >
           {icon}
         </div>
-        <div className="min-w-0">
-          <p className="text-sm text-text-secondary leading-tight">{label}</p>
-          <p className={["text-4xl font-bold mt-1 leading-none", valueColor].join(" ")}>{value}</p>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm text-text-secondary leading-tight truncate">{label}</p>
+          <div className="flex items-baseline gap-2 mt-1">
+            <p className={["text-3xl font-bold leading-none", valueColor].join(" ")}>{value}</p>
+            {change && (
+              <span
+                className={["text-xs font-semibold", change.positive ? "text-success" : "text-danger"].join(" ")}
+              >
+                {change.positive ? "+" : ""}{change.value}
+              </span>
+            )}
+          </div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
-// ─── Section Header ──────────────────────────────────────────────────────────
+// ─── Section Header ───────────────────────────────────────────────────────────
 
 function SectionHeader({ title, action }: { title: string; action?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between mb-3">
-      <h2 className="text-base font-semibold text-text-primary">{title}</h2>
+      <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
       {action}
     </div>
   );
 }
 
-// ─── Role Dashboards ─────────────────────────────────────────────────────────
+// ─── Welcome Section ──────────────────────────────────────────────────────────
+
+interface WelcomeProps {
+  name: string;
+  subtitle: string;
+  role: string;
+}
+
+function WelcomeSection({ name, subtitle, role }: WelcomeProps) {
+  return (
+    <div className="flex items-start justify-between gap-4 flex-wrap">
+      <div>
+        <h1
+          className="text-2xl font-extrabold text-text-primary"
+          style={{ letterSpacing: "-0.02em" }}
+        >
+          Xin chào, {name}
+        </h1>
+        <p className="text-sm text-text-secondary mt-1">{subtitle}</p>
+      </div>
+      <span
+        className="text-xs font-semibold px-3 py-1.5 rounded-full flex-shrink-0 mt-0.5"
+        style={{ background: "rgba(37,99,235,0.08)", color: "var(--primary)" }}
+      >
+        {getRoleLabel(role)}
+      </span>
+    </div>
+  );
+}
+
+// ─── SLA Progress Bar ─────────────────────────────────────────────────────────
+
+interface SlaBarProps {
+  label: string;
+  count: number;
+  total: number;
+  color: string;
+  bgColor: string;
+  textColor: string;
+}
+
+function SlaBar({ label, count, total, color, bgColor, textColor }: SlaBarProps) {
+  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+  return (
+    <div className="flex items-center gap-4">
+      <p className="text-sm font-medium text-text-secondary w-20 flex-shrink-0">{label}</p>
+      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: bgColor }}>
+        <div
+          className="h-full rounded-full transition-all duration-700"
+          style={{ width: `${pct}%`, background: color }}
+        />
+      </div>
+      <div className="flex items-center gap-1.5 w-16 flex-shrink-0 justify-end">
+        <span className={["text-sm font-bold", textColor].join(" ")}>{count}</span>
+        <span className="text-xs text-text-secondary">({pct}%)</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Counter Staff Dashboard ──────────────────────────────────────────────────
 
 function CounterStaffDashboard() {
   const router = useRouter();
@@ -92,45 +202,45 @@ function CounterStaffDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome */}
-      <div>
-        <h1 className="text-xl font-bold text-text-primary">
-          Xin chào, {currentUser?.name} 👋
-        </h1>
-        <p className="text-sm text-text-secondary mt-0.5">
-          {myPharmacy?.name ?? "Nhà thuốc của bạn"} &mdash; {new Date().toLocaleDateString("vi-VN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-        </p>
-      </div>
+      <WelcomeSection
+        name={currentUser?.name ?? ""}
+        subtitle={`${myPharmacy?.name ?? "Nhà thuốc của bạn"} — ${formatVietnameseDate(new Date())}`}
+        role={currentUser?.role ?? ""}
+      />
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
           icon={<Package className="w-5 h-5 text-primary" />}
           iconBg="bg-primary/10"
           label="Tài sản tại quầy"
           value={myAssets.length}
+          accentColor="var(--primary)"
         />
         <StatCard
           icon={<AlertTriangle className="w-5 h-5 text-danger" />}
           iconBg="bg-danger/10"
-          label="Sự cố đang xử lý"
+          label="Đang báo hỏng"
           value={pendingIncidents.length}
+          accentColor="var(--danger)"
           valueColor={pendingIncidents.length > 0 ? "text-danger" : "text-text-primary"}
           onClick={() => router.push("/incidents")}
         />
         <StatCard
           icon={<Wrench className="w-5 h-5 text-warning" />}
           iconBg="bg-warning/10"
-          label="Task đang tiến hành"
+          label="Đang xử lý"
           value={inProgressTasks.length}
+          accentColor="var(--warning)"
           valueColor="text-warning"
           onClick={() => router.push("/tasks")}
         />
         <StatCard
           icon={<CheckCircle className="w-5 h-5 text-success" />}
           iconBg="bg-success/10"
-          label="Task đã hoàn thành"
+          label="Hoàn tất"
           value={completedTasks.length}
+          accentColor="var(--success)"
           valueColor="text-success"
         />
       </div>
@@ -141,13 +251,13 @@ function CounterStaffDashboard() {
           title="Sự cố gần đây"
           action={
             <Button size="sm" variant="ghost" onClick={() => router.push("/incidents")}>
-              Xem tất cả <ArrowRight size={14} />
+              Xem tất cả <ArrowRight size={13} />
             </Button>
           }
         />
         <Card>
           {myIncidents.length === 0 ? (
-            <p className="text-sm text-text-secondary text-center py-8">Không có sự cố nào</p>
+            <p className="text-sm text-text-secondary text-center py-10">Không có sự cố nào</p>
           ) : (
             <div className="divide-y divide-border-color">
               {myIncidents.slice(0, 6).map((inc) => (
@@ -156,15 +266,23 @@ function CounterStaffDashboard() {
                   className="flex items-start gap-3 px-5 py-3.5 hover:bg-page-bg/50 cursor-pointer transition-colors"
                   onClick={() => router.push(`/incidents/${inc.id}`)}
                 >
+                  {/* Severity indicator */}
                   <div
-                    className={[
-                      "w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0",
-                      inc.level === 1 ? "bg-danger" : inc.level === 2 ? "bg-warning" : "bg-info",
-                    ].join(" ")}
+                    className="w-0.5 self-stretch rounded-full flex-shrink-0 mt-0.5"
+                    style={{
+                      background:
+                        inc.level === 1
+                          ? "var(--danger)"
+                          : inc.level === 2
+                          ? "var(--warning)"
+                          : "var(--info)",
+                    }}
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-text-primary truncate">{inc.title}</p>
-                    <p className="text-xs text-text-secondary mt-0.5">{inc.code} &middot; {timeAgo(inc.createdAt)}</p>
+                    <p className="text-xs text-text-secondary mt-0.5">
+                      {inc.code} &middot; {timeAgo(inc.createdAt)}
+                    </p>
                   </div>
                   <Badge status={inc.status} size="sm" />
                 </div>
@@ -181,30 +299,38 @@ function CounterStaffDashboard() {
             title={`Chờ xác nhận hoàn tất (${confirmationTasks.length})`}
             action={
               <Button size="sm" variant="ghost" onClick={() => router.push("/tasks")}>
-                Xem tất cả <ArrowRight size={14} />
+                Xem tất cả <ArrowRight size={13} />
               </Button>
             }
           />
           <div className="space-y-3">
             {confirmationTasks.map((task) => (
-              <Card
+              <div
                 key={task.id}
-                className="p-4"
+                className="bg-surface rounded-xl border overflow-hidden cursor-pointer hover:shadow-[0_4px_14px_rgba(0,0,0,0.08)] hover:-translate-y-px transition-all duration-150"
+                style={{ borderColor: "rgba(168,85,247,0.25)", borderLeft: "4px solid #a855f7" }}
                 onClick={() => router.push(`/tasks/${task.id}`)}
               >
-                <div className="flex items-center justify-between gap-3">
+                <div className="px-5 py-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs font-mono text-text-secondary">{task.code}</span>
                       <Badge status="waiting_confirmation" size="sm" />
                     </div>
-                    <p className="text-sm font-medium text-text-primary mt-1 truncate">{task.title}</p>
+                    <p className="text-sm font-semibold text-text-primary mt-1 truncate">{task.title}</p>
                   </div>
-                  <Button size="sm" variant="primary" onClick={(e) => { e.stopPropagation(); router.push(`/tasks/${task.id}`); }}>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/tasks/${task.id}`);
+                    }}
+                  >
                     Xác nhận
                   </Button>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         </div>
@@ -212,6 +338,8 @@ function CounterStaffDashboard() {
     </div>
   );
 }
+
+// ─── Operations Dashboard ─────────────────────────────────────────────────────
 
 function OperationsDashboard() {
   const router = useRouter();
@@ -239,98 +367,94 @@ function OperationsDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome */}
-      <div>
-        <h1 className="text-xl font-bold text-text-primary">
-          {isManager ? "Dashboard Quản lý" : "Dashboard Vận hành"}
-        </h1>
-        <p className="text-sm text-text-secondary mt-0.5">
-          Xin chào, {currentUser?.name} &mdash; {getRoleLabel(currentUser?.role ?? "")}
-        </p>
-      </div>
+      <WelcomeSection
+        name={currentUser?.name ?? ""}
+        subtitle={`${isManager ? "Dashboard Quản lý Vận hành" : "Dashboard Vận hành"} — ${formatVietnameseDate(new Date())}`}
+        role={currentUser?.role ?? ""}
+      />
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
           icon={<ClipboardList className="w-5 h-5 text-primary" />}
           iconBg="bg-primary/10"
-          label="Tổng số task"
+          label="Tổng task"
           value={totalTasks}
+          accentColor="var(--primary)"
           onClick={() => router.push("/tasks")}
         />
         <StatCard
           icon={<ShieldAlert className="w-5 h-5 text-danger" />}
           iconBg="bg-danger/10"
-          label="Task quá hạn SLA"
+          label="Quá hạn"
           value={overdueTasks.length}
+          accentColor="var(--danger)"
           valueColor={overdueTasks.length > 0 ? "text-danger" : "text-text-primary"}
           onClick={() => router.push("/tasks")}
         />
         <StatCard
-          icon={<Wrench className="w-5 h-5 text-info" />}
-          iconBg="bg-info/10"
-          label="Đang tiến hành"
+          icon={<Wrench className="w-5 h-5 text-warning" />}
+          iconBg="bg-warning/10"
+          label="Đang xử lý"
           value={inProgressTasks.length}
-          valueColor="text-info"
+          accentColor="var(--warning)"
+          valueColor="text-warning"
           onClick={() => router.push("/tasks")}
         />
         <StatCard
           icon={<CheckCircle className="w-5 h-5 text-success" />}
           iconBg="bg-success/10"
-          label="Hoàn thành tháng này"
+          label="Hoàn tất tháng"
           value={completedThisMonth.length}
+          accentColor="var(--success)"
           valueColor="text-success"
         />
       </div>
 
-      {/* SLA overview */}
+      {/* SLA Overview */}
       <div>
         <SectionHeader title="Tổng quan SLA" />
-        <div className="grid grid-cols-3 gap-3">
-          <Card className="p-4 text-center">
-            <div className="text-3xl font-bold text-success">{slaOnTime}</div>
-            <div className="text-xs text-text-secondary mt-1 font-medium">Trong hạn</div>
-            <div className="mt-2 h-1.5 rounded-full bg-success/20 overflow-hidden">
-              <div
-                className="h-full bg-success rounded-full"
-                style={{ width: totalTasks ? `${(slaOnTime / totalTasks) * 100}%` : "0%" }}
-              />
-            </div>
-          </Card>
-          <Card className="p-4 text-center">
-            <div className="text-3xl font-bold text-warning">{slaAtRisk}</div>
-            <div className="text-xs text-text-secondary mt-1 font-medium">Sắp trễ</div>
-            <div className="mt-2 h-1.5 rounded-full bg-warning/20 overflow-hidden">
-              <div
-                className="h-full bg-warning rounded-full"
-                style={{ width: totalTasks ? `${(slaAtRisk / totalTasks) * 100}%` : "0%" }}
-              />
-            </div>
-          </Card>
-          <Card className="p-4 text-center">
-            <div className="text-3xl font-bold text-danger">{slaOverdue}</div>
-            <div className="text-xs text-text-secondary mt-1 font-medium">Quá hạn</div>
-            <div className="mt-2 h-1.5 rounded-full bg-danger/20 overflow-hidden">
-              <div
-                className="h-full bg-danger rounded-full"
-                style={{ width: totalTasks ? `${(slaOverdue / totalTasks) * 100}%` : "0%" }}
-              />
-            </div>
-          </Card>
-        </div>
+        <Card className="px-6 py-5">
+          <div className="space-y-4">
+            <SlaBar
+              label="Trong hạn"
+              count={slaOnTime}
+              total={totalTasks}
+              color="var(--success)"
+              bgColor="rgba(16,185,129,0.12)"
+              textColor="text-success"
+            />
+            <SlaBar
+              label="Sắp trễ"
+              count={slaAtRisk}
+              total={totalTasks}
+              color="var(--warning)"
+              bgColor="rgba(245,158,11,0.12)"
+              textColor="text-warning"
+            />
+            <SlaBar
+              label="Quá hạn"
+              count={slaOverdue}
+              total={totalTasks}
+              color="var(--danger)"
+              bgColor="rgba(239,68,68,0.12)"
+              textColor="text-danger"
+            />
+          </div>
+        </Card>
       </div>
 
-      {/* Recent tasks + Kanban link */}
+      {/* Recent tasks */}
       <div>
         <SectionHeader
           title="Task gần đây"
           action={
             <div className="flex gap-2">
               <Button size="sm" variant="ghost" onClick={() => router.push("/tasks/kanban")}>
-                <Kanban size={14} /> Kanban
+                <Kanban size={13} /> Kanban
               </Button>
               <Button size="sm" variant="ghost" onClick={() => router.push("/tasks")}>
-                Tất cả <ArrowRight size={14} />
+                Tất cả <ArrowRight size={13} />
               </Button>
             </div>
           }
@@ -340,18 +464,26 @@ function OperationsDashboard() {
             {recentTasks.map((task) => (
               <div
                 key={task.id}
-                className="flex items-center gap-3 px-5 py-3.5 hover:bg-page-bg/50 cursor-pointer transition-colors"
+                className="flex items-center gap-4 px-5 py-3.5 hover:bg-page-bg/50 cursor-pointer transition-colors"
                 onClick={() => router.push(`/tasks/${task.id}`)}
               >
+                {/* SLA level dot */}
                 <div
-                  className={[
-                    "w-1.5 h-1.5 rounded-full flex-shrink-0",
-                    task.level === 1 ? "bg-danger" : task.level === 2 ? "bg-warning" : "bg-info",
-                  ].join(" ")}
+                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  style={{
+                    background:
+                      task.level === 1
+                        ? "var(--danger)"
+                        : task.level === 2
+                        ? "var(--warning)"
+                        : "var(--info)",
+                  }}
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-text-primary truncate">{task.title}</p>
-                  <p className="text-xs text-text-secondary mt-0.5">{task.code} &middot; {timeAgo(task.updatedAt)}</p>
+                  <p className="text-xs text-text-secondary mt-0.5">
+                    {task.code} &middot; {timeAgo(task.updatedAt)}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <Badge status={task.slaStatus} size="sm" />
@@ -365,6 +497,8 @@ function OperationsDashboard() {
     </div>
   );
 }
+
+// ─── Admin Dashboard ──────────────────────────────────────────────────────────
 
 function AdminDashboard() {
   const router = useRouter();
@@ -383,10 +517,10 @@ function AdminDashboard() {
   }, [assets]);
 
   const assetStatusList = [
-    { key: "active", label: "Hoạt động", color: "text-success", bg: "bg-success/10" },
-    { key: "needs_repair", label: "Cần sửa", color: "text-orange-600", bg: "bg-orange-50" },
-    { key: "broken", label: "Hư hỏng", color: "text-danger", bg: "bg-danger/10" },
-    { key: "inactive", label: "Ngừng HĐ", color: "text-text-secondary", bg: "bg-text-secondary/10" },
+    { key: "active", label: "Hoạt động", accentColor: "var(--success)", iconBg: "bg-success/10", valueColor: "text-success", icon: <CheckCircle className="w-5 h-5 text-success" /> },
+    { key: "needs_repair", label: "Cần sửa", accentColor: "#f97316", iconBg: "bg-orange-100", valueColor: "text-orange-600", icon: <Wrench className="w-5 h-5 text-orange-500" /> },
+    { key: "broken", label: "Hư hỏng", accentColor: "var(--danger)", iconBg: "bg-danger/10", valueColor: "text-danger", icon: <AlertTriangle className="w-5 h-5 text-danger" /> },
+    { key: "inactive", label: "Ngừng HĐ", accentColor: "#94a3b8", iconBg: "bg-slate-100", valueColor: "text-text-secondary", icon: <Activity className="w-5 h-5 text-text-secondary" /> },
   ];
 
   const recentActivities = [...activities]
@@ -395,40 +529,44 @@ function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome */}
-      <div>
-        <h1 className="text-xl font-bold text-text-primary">Dashboard Admin</h1>
-        <p className="text-sm text-text-secondary mt-0.5">Tổng quan hệ thống quản lý tài sản</p>
-      </div>
+      <WelcomeSection
+        name="Admin"
+        subtitle={`Tổng quan hệ thống — ${formatVietnameseDate(new Date())}`}
+        role="admin"
+      />
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
           icon={<Store className="w-5 h-5 text-primary" />}
           iconBg="bg-primary/10"
-          label="Nhà thuốc đang hoạt động"
+          label="Quầy thuốc"
           value={activePharmacies}
+          accentColor="var(--primary)"
           onClick={() => router.push("/pharmacies")}
         />
         <StatCard
-          icon={<Package className="w-5 h-5 text-info" />}
-          iconBg="bg-info/10"
-          label="Tổng tài sản"
+          icon={<Package className="w-5 h-5 text-success" />}
+          iconBg="bg-success/10"
+          label="Tài sản"
           value={assets.length}
+          accentColor="var(--success)"
           onClick={() => router.push("/assets")}
         />
         <StatCard
-          icon={<Users className="w-5 h-5 text-success" />}
-          iconBg="bg-success/10"
-          label="Người dùng đang hoạt động"
+          icon={<Users className="w-5 h-5" style={{ color: "#8b5cf6" }} />}
+          iconBg="bg-purple-50"
+          label="Người dùng"
           value={activeUsers}
+          accentColor="#8b5cf6"
           onClick={() => router.push("/admin/users")}
         />
         <StatCard
           icon={<AlertTriangle className="w-5 h-5 text-danger" />}
           iconBg="bg-danger/10"
-          label="Sự cố đang mở"
+          label="Sự cố"
           value={activeIncidents}
+          accentColor="var(--danger)"
           valueColor={activeIncidents > 0 ? "text-danger" : "text-text-primary"}
           onClick={() => router.push("/incidents")}
         />
@@ -440,48 +578,63 @@ function AdminDashboard() {
           title="Phân bổ trạng thái tài sản"
           action={
             <Button size="sm" variant="ghost" onClick={() => router.push("/assets")}>
-              Xem tất cả <ArrowRight size={14} />
+              Xem tất cả <ArrowRight size={13} />
             </Button>
           }
         />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {assetStatusList.map((s) => (
-            <Card key={s.key} className="p-4 text-center" onClick={() => router.push("/assets")}>
-              <div className={["text-3xl font-bold", s.color].join(" ")}>
-                {statusGroups[s.key] ?? 0}
-              </div>
-              <div className={["text-xs font-medium mt-1 px-2 py-0.5 rounded-full inline-block", s.bg, s.color].join(" ")}>
-                {s.label}
-              </div>
-            </Card>
+            <StatCard
+              key={s.key}
+              icon={s.icon}
+              iconBg={s.iconBg}
+              label={s.label}
+              value={statusGroups[s.key] ?? 0}
+              accentColor={s.accentColor}
+              valueColor={s.valueColor}
+              onClick={() => router.push("/assets")}
+            />
           ))}
         </div>
       </div>
 
-      {/* Recent activities */}
+      {/* Recent activities — timeline style */}
       <div>
         <SectionHeader title="Hoạt động gần đây" />
         <Card>
           {recentActivities.length === 0 ? (
-            <p className="text-sm text-text-secondary text-center py-8">Chưa có hoạt động nào</p>
+            <p className="text-sm text-text-secondary text-center py-10">Chưa có hoạt động nào</p>
           ) : (
-            <div className="divide-y divide-border-color">
-              {recentActivities.map((act) => {
+            <div className="px-5 py-2">
+              {recentActivities.map((act, idx) => {
                 const actUser = users.find((u) => u.id === act.userId);
+                const isLast = idx === recentActivities.length - 1;
                 return (
-                  <div key={act.id} className="flex items-start gap-3 px-5 py-3.5">
-                    <div className="w-8 h-8 flex-shrink-0 mt-0.5">
-                      {actUser ? (
-                        <UserAvatar user={actUser} size="sm" />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-page-bg flex items-center justify-center">
-                          <Activity size={14} className="text-text-secondary" />
-                        </div>
+                  <div key={act.id} className="flex gap-3.5 py-3">
+                    {/* Timeline track */}
+                    <div className="flex flex-col items-center flex-shrink-0">
+                      <div className="w-8 h-8 mt-0.5">
+                        {actUser ? (
+                          <UserAvatar user={actUser} size="sm" />
+                        ) : (
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center"
+                            style={{ background: "var(--page-bg)" }}
+                          >
+                            <Activity size={13} className="text-text-secondary" />
+                          </div>
+                        )}
+                      </div>
+                      {!isLast && (
+                        <div
+                          className="w-px flex-1 mt-2"
+                          style={{ background: "var(--border-color)" }}
+                        />
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 pb-1">
                       <p className="text-sm text-text-primary">
-                        <span className="font-medium">{actUser?.name ?? "Hệ thống"}</span>{" "}
+                        <span className="font-semibold">{actUser?.name ?? "Hệ thống"}</span>{" "}
                         <span className="text-text-secondary">{act.action}</span>
                       </p>
                       <p className="text-xs text-text-secondary mt-0.5">{timeAgo(act.timestamp)}</p>
@@ -496,6 +649,8 @@ function AdminDashboard() {
     </div>
   );
 }
+
+// ─── Inventory Staff Dashboard ────────────────────────────────────────────────
 
 function InventoryStaffDashboard() {
   const router = useRouter();
@@ -521,123 +676,142 @@ function InventoryStaffDashboard() {
     (i) => i.checkStatus === "present_damaged" || i.checkStatus === "not_found"
   );
 
-  // Global anomalies across all my cycles
   const allMyCycleIds = new Set(myCycles.map((c) => c.id));
   const allMyItems = inventoryItems.filter((i) => allMyCycleIds.has(i.cycleId));
   const totalAnomalies = allMyItems.filter(
     (i) => i.checkStatus === "present_damaged" || i.checkStatus === "not_found"
   ).length;
 
+  const progressPct =
+    activeCycleItems.length > 0
+      ? Math.round((checkedItems / activeCycleItems.length) * 100)
+      : 0;
+
   return (
     <div className="space-y-6">
-      {/* Welcome */}
-      <div>
-        <h1 className="text-xl font-bold text-text-primary">
-          Dashboard Kiểm kê
-        </h1>
-        <p className="text-sm text-text-secondary mt-0.5">
-          Xin chào, {currentUser?.name}
-        </p>
-      </div>
+      <WelcomeSection
+        name={currentUser?.name ?? ""}
+        subtitle={`Dashboard Kiểm kê — ${formatVietnameseDate(new Date())}`}
+        role={currentUser?.role ?? ""}
+      />
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
           icon={<ClipboardList className="w-5 h-5 text-primary" />}
           iconBg="bg-primary/10"
-          label="Kỳ kiểm kê được giao"
+          label="Kỳ được giao"
           value={myCycles.length}
+          accentColor="var(--primary)"
           onClick={() => router.push("/inventory")}
         />
         <StatCard
           icon={<CheckCircle className="w-5 h-5 text-success" />}
           iconBg="bg-success/10"
-          label="Kỳ đã hoàn thành"
+          label="Kỳ hoàn thành"
           value={completedCycles}
+          accentColor="var(--success)"
           valueColor="text-success"
         />
         <StatCard
           icon={<Package className="w-5 h-5 text-info" />}
           iconBg="bg-info/10"
-          label="Tài sản đã kiểm tra"
+          label="Tài sản đã kiểm"
           value={checkedItems}
+          accentColor="var(--info)"
         />
         <StatCard
           icon={<AlertTriangle className="w-5 h-5 text-warning" />}
           iconBg="bg-warning/10"
-          label="Bất thường phát hiện"
+          label="Bất thường"
           value={totalAnomalies}
+          accentColor="var(--warning)"
           valueColor={totalAnomalies > 0 ? "text-warning" : "text-text-primary"}
         />
       </div>
 
-      {/* Active cycle info */}
+      {/* Active cycle */}
       {activeCycle ? (
         <div>
           <SectionHeader
             title="Kỳ kiểm kê đang hoạt động"
             action={
               <Button size="sm" variant="ghost" onClick={() => router.push(`/inventory/${activeCycle.id}`)}>
-                Xem chi tiết <ArrowRight size={14} />
+                Xem chi tiết <ArrowRight size={13} />
               </Button>
             }
           />
-          <Card className="p-5">
-            <div className="flex items-start justify-between gap-4 flex-wrap">
+          <Card className="p-6">
+            <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
               <div>
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1.5">
                   <span className="font-mono text-xs text-text-secondary">{activeCycle.code}</span>
                   <Badge status="in_progress" size="sm" />
                 </div>
-                <h3 className="text-base font-semibold text-text-primary">{activeCycle.name}</h3>
+                <h3 className="text-base font-bold text-text-primary">{activeCycle.name}</h3>
                 <p className="text-sm text-text-secondary mt-1">
                   {new Date(activeCycle.startDate).toLocaleDateString("vi-VN")} &ndash;{" "}
                   {new Date(activeCycle.endDate).toLocaleDateString("vi-VN")}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-text-secondary">Tiến độ</p>
-                <p className="text-2xl font-bold text-primary">
-                  {checkedItems} / {activeCycleItems.length}
+                <p className="text-xs text-text-secondary mb-0.5">Tiến độ</p>
+                <p
+                  className="text-3xl font-extrabold"
+                  style={{ color: "var(--primary)", letterSpacing: "-0.02em" }}
+                >
+                  {progressPct}%
+                </p>
+                <p className="text-xs text-text-secondary">
+                  {checkedItems} / {activeCycleItems.length} tài sản
                 </p>
               </div>
             </div>
 
-            {/* Progress bar */}
-            <div className="mt-4">
-              <div className="h-2 rounded-full bg-page-bg overflow-hidden">
-                <div
-                  className="h-full bg-primary rounded-full transition-all duration-500"
-                  style={{
-                    width: activeCycleItems.length > 0
-                      ? `${(checkedItems / activeCycleItems.length) * 100}%`
-                      : "0%",
-                  }}
-                />
-              </div>
-              <div className="flex justify-between text-xs text-text-secondary mt-1.5">
-                <span>{checkedItems} đã kiểm</span>
-                <span>{activeCycleItems.length - checkedItems} chưa kiểm</span>
-              </div>
+            {/* Animated progress bar */}
+            <div
+              className="h-3 rounded-full overflow-hidden"
+              style={{ background: "rgba(37,99,235,0.1)" }}
+            >
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${progressPct}%`,
+                  background: "linear-gradient(90deg, var(--primary) 0%, #60a5fa 100%)",
+                }}
+              />
+            </div>
+            <div className="flex justify-between text-xs text-text-secondary mt-2">
+              <span>{checkedItems} đã kiểm</span>
+              <span>{activeCycleItems.length - checkedItems} chưa kiểm</span>
             </div>
 
             {/* Anomalies in active cycle */}
             {anomalyItems.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-border-color">
-                <p className="text-sm font-medium text-warning mb-2">
+              <div
+                className="mt-5 pt-4 rounded-xl px-4 py-3"
+                style={{
+                  border: "1px solid rgba(245,158,11,0.25)",
+                  background: "rgba(245,158,11,0.05)",
+                }}
+              >
+                <p className="text-sm font-semibold text-warning mb-2.5">
                   Bất thường trong kỳ này ({anomalyItems.length})
                 </p>
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {anomalyItems.slice(0, 3).map((item) => (
                     <div key={item.id} className="flex items-center gap-2 text-xs">
-                      <span
-                        className={[
-                          "w-1.5 h-1.5 rounded-full flex-shrink-0",
-                          item.checkStatus === "not_found" ? "bg-danger" : "bg-warning",
-                        ].join(" ")}
+                      <div
+                        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        style={{
+                          background:
+                            item.checkStatus === "not_found" ? "var(--danger)" : "var(--warning)",
+                        }}
                       />
                       <Badge status={item.checkStatus} size="sm" />
-                      {item.notes && <span className="text-text-secondary truncate">{item.notes}</span>}
+                      {item.notes && (
+                        <span className="text-text-secondary truncate">{item.notes}</span>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -648,26 +822,26 @@ function InventoryStaffDashboard() {
       ) : (
         <div>
           <SectionHeader title="Kỳ kiểm kê đang hoạt động" />
-          <Card className="py-10 text-center">
-            <TrendingUp className="w-10 h-10 text-text-secondary/30 mx-auto mb-2" />
+          <Card className="py-12 text-center">
+            <TrendingUp className="w-10 h-10 mx-auto mb-3" style={{ color: "rgba(100,116,139,0.3)" }} />
             <p className="text-sm text-text-secondary">Không có kỳ kiểm kê nào đang hoạt động</p>
           </Card>
         </div>
       )}
 
-      {/* All my cycles */}
+      {/* All cycles */}
       <div>
         <SectionHeader
           title={`Tất cả kỳ kiểm kê (${myCycles.length})`}
           action={
             <Button size="sm" variant="ghost" onClick={() => router.push("/inventory")}>
-              Xem tất cả <ArrowRight size={14} />
+              Xem tất cả <ArrowRight size={13} />
             </Button>
           }
         />
         <Card>
           {myCycles.length === 0 ? (
-            <p className="text-sm text-text-secondary text-center py-8">Chưa được giao kỳ kiểm kê nào</p>
+            <p className="text-sm text-text-secondary text-center py-10">Chưa được giao kỳ kiểm kê nào</p>
           ) : (
             <div className="divide-y divide-border-color">
               {myCycles.map((cycle) => (
@@ -676,11 +850,18 @@ function InventoryStaffDashboard() {
                   className="flex items-center gap-3 px-5 py-3.5 hover:bg-page-bg/50 cursor-pointer transition-colors"
                   onClick={() => router.push(`/inventory/${cycle.id}`)}
                 >
-                  <BarChart3 className="w-4 h-4 text-text-secondary flex-shrink-0" />
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ background: "rgba(37,99,235,0.08)" }}
+                  >
+                    <BarChart3 className="w-4 h-4 text-primary" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-text-primary truncate">{cycle.name}</p>
                     <p className="text-xs text-text-secondary mt-0.5">
-                      {cycle.code} &middot; {new Date(cycle.startDate).toLocaleDateString("vi-VN")} &ndash; {new Date(cycle.endDate).toLocaleDateString("vi-VN")}
+                      {cycle.code} &middot;{" "}
+                      {new Date(cycle.startDate).toLocaleDateString("vi-VN")} &ndash;{" "}
+                      {new Date(cycle.endDate).toLocaleDateString("vi-VN")}
                     </p>
                   </div>
                   <Badge status={cycle.status} size="sm" />
@@ -694,14 +875,17 @@ function InventoryStaffDashboard() {
   );
 }
 
-// ─── Redirect to login if not authenticated ──────────────────────────────────
+// ─── Not authenticated ────────────────────────────────────────────────────────
 
 function NotAuthenticatedState() {
   const router = useRouter();
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-      <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
+      <div
+        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+        style={{ background: "rgba(37,99,235,0.08)" }}
+      >
         <Store className="w-8 h-8 text-primary" />
       </div>
       <h1 className="text-xl font-bold text-text-primary mb-2">HV QL Tài Sản</h1>
@@ -715,7 +899,7 @@ function NotAuthenticatedState() {
   );
 }
 
-// ─── Main export ─────────────────────────────────────────────────────────────
+// ─── Main export ──────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
   const { currentUser } = useStore();

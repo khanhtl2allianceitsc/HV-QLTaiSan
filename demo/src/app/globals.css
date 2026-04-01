@@ -1,56 +1,134 @@
 @import "tailwindcss";
 
 @theme inline {
+  /* Colors */
   --color-page-bg: var(--page-bg);
   --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-light: var(--primary-light);
+  --color-primary-lighter: var(--primary-lighter);
+  --color-secondary: var(--secondary);
   --color-success: var(--success);
+  --color-success-light: var(--success-light);
   --color-warning: var(--warning);
+  --color-warning-light: var(--warning-light);
   --color-danger: var(--danger);
+  --color-danger-light: var(--danger-light);
   --color-info: var(--info);
+  --color-info-light: var(--info-light);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
   --color-border-color: var(--border-color);
-  --font-sans: var(--font-inter);
+  --color-border-hover: var(--border-hover);
+
+  /* Shadows */
+  --shadow-shadow-sm: var(--shadow-sm);
+  --shadow-shadow-md: var(--shadow-md);
+  --shadow-shadow-lg: var(--shadow-lg);
+  --shadow-shadow-xl: var(--shadow-xl);
+
+  /* Border radius */
+  --radius-radius-sm: var(--radius-sm);
+  --radius-radius-md: var(--radius-md);
+  --radius-radius-lg: var(--radius-lg);
+  --radius-radius-xl: var(--radius-xl);
+
+  /* Font */
+  --font-sans: var(--font-lexend);
 }
 
 :root {
-  --page-bg: #F0F4F8;
+  /* Page & surface */
+  --page-bg: #F8FAFC;
   --surface: #FFFFFF;
+  --surface-hover: #F1F5F9;
+
+  /* Primary — trust blue */
   --primary: #2563EB;
+  --primary-hover: #1D4ED8;
   --primary-light: #EFF6FF;
-  --success: #10B981;
-  --warning: #F59E0B;
-  --danger: #EF4444;
-  --info: #3B82F6;
+  --primary-lighter: #DBEAFE;
+
+  /* Neutral */
+  --secondary: #0F172A;
+
+  /* Semantic */
+  --success: #059669;
+  --success-light: #D1FAE5;
+  --warning: #D97706;
+  --warning-light: #FEF3C7;
+  --danger: #DC2626;
+  --danger-light: #FEE2E2;
+  --info: #2563EB;
+  --info-light: #DBEAFE;
+
+  /* Accent — CTA orange */
+  --accent: #F97316;
+  --accent-light: #FFF7ED;
+
+  /* Text */
   --text-primary: #0F172A;
-  --text-secondary: #64748B;
-  --border-color: rgba(15, 23, 42, 0.08);
+  --text-secondary: #475569;
+  --text-tertiary: #94A3B8;
+
+  /* Borders */
+  --border-color: #E2E8F0;
+  --border-hover: #CBD5E1;
+
+  /* Shadows — soft, layered */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 4px -1px rgba(0, 0, 0, 0.04), 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 4px 6px -2px rgba(0, 0, 0, 0.03), 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
 }
 
-* {
+/* ─── Reset & base ─────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 html {
   height: 100%;
+  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
   height: 100%;
   background-color: var(--page-bg);
   color: var(--text-primary);
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  line-height: 1.5;
+  font-family: var(--font-lexend), ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.6;
 }
 
-/* Custom scrollbar */
+/* ─── Selection ────────────────────────────────────────────── */
+
+::selection {
+  background-color: var(--primary-lighter);
+  color: var(--primary-hover);
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -58,41 +136,103 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.15);
-  border-radius: 3px;
+  background: rgba(15, 23, 42, 0.12);
+  border-radius: 100px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(15, 23, 42, 0.25);
+  background: rgba(15, 23, 42, 0.22);
 }
 
-/* Focus ring */
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 23, 42, 0.12) transparent;
+}
+
+/* ─── Focus ──────────────────────────────────────────────────── */
+
 :focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
+  border-radius: 4px;
 }
 
-/* Smooth transitions */
+/* ─── Transitions ───────────────────────────────────────────── */
+
 a,
 button {
-  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  transition:
+    color 0.2s ease-out,
+    background-color 0.2s ease-out,
+    border-color 0.2s ease-out,
+    box-shadow 0.2s ease-out,
+    opacity 0.2s ease-out,
+    transform 0.2s ease-out;
 }
 
-/* Remove default button styles */
 button {
   cursor: pointer;
 }
 
-/* Input base */
+/* ─── Inputs ─────────────────────────────────────────────────── */
+
 input,
 textarea,
 select {
   color: var(--text-primary);
   background-color: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color 0.2s ease-out,
+    box-shadow 0.2s ease-out,
+    background-color 0.2s ease-out;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.1),
+    inset 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+input:hover:not(:focus),
+textarea:hover:not(:focus),
+select:hover:not(:focus) {
+  border-color: var(--border-hover);
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--text-secondary);
-  opacity: 0.7;
+  color: var(--text-tertiary);
+}
+
+/* ─── Animations ─────────────────────────────────────────────── */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out forwards;
 }

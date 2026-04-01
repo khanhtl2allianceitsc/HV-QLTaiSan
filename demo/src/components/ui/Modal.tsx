@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
@@ -12,6 +12,7 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   size?: ModalSize;
+  footer?: React.ReactNode;
 }
 
 const sizeMap: Record<ModalSize, string> = {
@@ -20,8 +21,31 @@ const sizeMap: Record<ModalSize, string> = {
   lg: "max-w-2xl",
 };
 
-export function Modal({ isOpen, onClose, title, children, size = "md" }: ModalProps) {
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  size = "md",
+  footer,
+}: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  // Track mount state for animations
+  useEffect(() => {
+    if (isOpen) {
+      setMounted(true);
+      // Slight delay so CSS transition triggers after mount
+      const raf = requestAnimationFrame(() => setVisible(true));
+      return () => cancelAnimationFrame(raf);
+    } else {
+      setVisible(false);
+      const t = setTimeout(() => setMounted(false), 200);
+      return () => clearTimeout(t);
+    }
+  }, [isOpen]);
 
   // Close on Escape key
   useEffect(() => {
@@ -45,18 +69,22 @@ export function Modal({ isOpen, onClose, title, children, size = "md" }: ModalPr
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!mounted) return null;
 
   const modal = (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className={[
+        "fixed inset-0 z-50 flex items-center justify-center p-4",
+        "transition-opacity duration-200 ease-out",
+        visible ? "opacity-100" : "opacity-0",
+      ].join(" ")}
       onClick={(e) => {
         if (e.target === overlayRef.current) onClose();
       }}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
       {/* Dialog */}
       <div
@@ -64,7 +92,12 @@ export function Modal({ isOpen, onClose, title, children, size = "md" }: ModalPr
         aria-modal="true"
         aria-labelledby="modal-title"
         className={[
-          "relative w-full bg-surface rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.2)] flex flex-col max-h-[90vh]",
+          "relative w-full bg-surface rounded-xl",
+          "border border-border-color",
+          "shadow-[var(--shadow-xl)]",
+          "flex flex-col max-h-[90vh]",
+          "transition-all duration-200 ease-out",
+          visible ? "scale-100 opacity-100" : "scale-95 opacity-0",
           sizeMap[size],
         ].join(" ")}
       >
@@ -72,13 +105,19 @@ export function Modal({ isOpen, onClose, title, children, size = "md" }: ModalPr
         <div className="flex items-center justify-between px-6 py-4 border-b border-border-color flex-shrink-0">
           <h2
             id="modal-title"
-            className="text-base font-semibold text-text-primary"
+            className="text-lg font-semibold text-text-primary leading-tight"
           >
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-text-secondary hover:bg-page-bg hover:text-text-primary transition-colors"
+            className={[
+              "w-8 h-8 flex items-center justify-center rounded-lg",
+              "text-text-secondary",
+              "hover:bg-surface-hover hover:text-text-primary",
+              "transition-all duration-200 ease-out",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-1",
+            ].join(" ")}
             aria-label="Đóng"
           >
             <X size={16} />
@@ -87,6 +126,13 @@ export function Modal({ isOpen, onClose, title, children, size = "md" }: ModalPr
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>
+
+        {/* Footer (optional) */}
+        {footer && (
+          <div className="flex-shrink-0 px-6 py-4 border-t border-border-color">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );

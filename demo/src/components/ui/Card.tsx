@@ -1,16 +1,46 @@
 "use client";
 
+import React from "react";
+
+type CardVariant = "default" | "elevated" | "outlined";
+
 interface CardProps {
   children: React.ReactNode;
   className?: string;
   onClick?: () => void;
+  variant?: CardVariant;
 }
 
-export function Card({ children, className = "", onClick }: CardProps) {
-  const base =
-    "bg-surface rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-border-color";
+const variantBase: Record<CardVariant, string> = {
+  default:
+    "bg-surface rounded-xl border border-border-color shadow-[var(--shadow-sm)]",
+  elevated:
+    "bg-surface rounded-xl border border-border-color shadow-[var(--shadow-md)]",
+  outlined:
+    "bg-surface rounded-xl border border-border-color",
+};
+
+const variantHover: Record<CardVariant, string> = {
+  default:
+    "hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] hover:border-border-hover active:translate-y-0 active:shadow-[var(--shadow-sm)]",
+  elevated:
+    "hover:-translate-y-0.5 hover:shadow-[var(--shadow-lg)] hover:border-border-hover active:translate-y-0 active:shadow-[var(--shadow-md)]",
+  outlined:
+    "hover:-translate-y-0.5 hover:border-border-hover active:translate-y-0",
+};
+
+export function Card({
+  children,
+  className = "",
+  onClick,
+  variant = "default",
+}: CardProps) {
+  const base = variantBase[variant];
   const interactive = onClick
-    ? "cursor-pointer hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:-translate-y-px transition-all duration-150"
+    ? [
+        "cursor-pointer transition-all duration-200 ease-out",
+        variantHover[variant],
+      ].join(" ")
     : "";
 
   if (onClick) {
