@@ -83,6 +83,10 @@ export interface Task {
   solution: 'self_repair' | 'replace_parts' | 'outsource' | null;
   estimatedCost: number;
   actualCost: number;
+  // Cost breakdown
+  laborCost: number;        // công thợ
+  materialCost: number;     // vật tư
+  supervisionCost: number;  // giám sát (only when solution = 'outsource')
   responseSla: string; // deadline ISO
   completionSla: string; // deadline ISO
   slaStatus: 'on_time' | 'at_risk' | 'overdue';
@@ -160,7 +164,7 @@ export interface ActivityLog {
 
 export interface TransferRecord {
   id: string;
-  code: string; // e.g. "DC-001" for điều chuyển, "BG-001" for bàn giao
+  code: string;
   assetId: string;
   type: 'pharmacy_transfer' | 'responsibility_transfer';
   fromPharmacyId?: string;
@@ -170,10 +174,14 @@ export interface TransferRecord {
   reason: string;
   transferDate: string;
   performedById: string;
-  status: 'draft' | 'approved' | 'completed' | 'cancelled';
+  status: 'draft' | 'approved' | 'awaiting_recipient' | 'completed' | 'cancelled';
   notes?: string;
   approvedById?: string;
   approvedAt?: string;
+  recipientConfirmed?: boolean;
+  recipientConfirmedById?: string;
+  recipientConfirmedAt?: string;
+  recipientNotes?: string;
 }
 
 // For the settings/config

@@ -63,6 +63,9 @@ const STATUS_MAP: Record<string, StatusConfig> = {
 
   // Blue approved
   approved:             { dot: "#2563EB", bg: "#DBEAFE", text: "#2563EB" },
+
+  // Amber awaiting recipient
+  awaiting_recipient:   { dot: "#D97706", bg: "#FEF3C7", text: "#D97706" },
 };
 
 const DEFAULT_CONFIG: StatusConfig = {
@@ -104,6 +107,7 @@ const STATUS_LABELS: Record<string, string> = {
   draft: "Nháp",
   approved: "Đã duyệt",
   cancelled: "Đã hủy",
+  awaiting_recipient: "Chờ xác nhận",
 };
 
 export function Badge({ status, label, size = "md" }: BadgeProps) {

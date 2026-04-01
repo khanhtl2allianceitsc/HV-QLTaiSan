@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, AlertCircle, Send, Clock, DollarSign, ExternalLink } from "lucide-react";
+import { ArrowLeft, AlertCircle, Send, Clock, ExternalLink } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { CustomSelect } from "@/components/ui/CustomSelect";
+import { PhotoUpload } from "@/components/ui/PhotoUpload";
 import { formatDate, formatDateTime, formatCurrency, timeAgo, getLevelLabel } from "@/lib/utils";
 import type { TaskStatus, TaskComment, IncidentLevel } from "@/types";
 
@@ -90,10 +91,19 @@ export default function TaskDetailPage() {
   const task = tasks.find((t) => t.id === params.id);
 
   const [commentText, setCommentText] = useState("");
+  const [commentImages, setCommentImages] = useState<string[]>([]);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [solution, setSolution] = useState<string>("");
   const [estimatedCost, setEstimatedCost] = useState("");
   const [actualCost, setActualCost] = useState("");
+  const [laborCost, setLaborCost] = useState("");
+  const [materialCost, setMaterialCost] = useState("");
+  const [supervisionCost, setSupervisionCost] = useState("");
+
+  // Photo groups for task images
+  const [beforeImages, setBeforeImages] = useState<string[]>([]);
+  const [duringImages, setDuringImages] = useState<string[]>([]);
+  const [afterImages, setAfterImages] = useState<string[]>([]);
 
   // Initialize local state from task data (only once)
   const [initialized, setInitialized] = useState(false);
@@ -101,6 +111,12 @@ export default function TaskDetailPage() {
     setSolution(task.solution ?? "");
     setEstimatedCost(task.estimatedCost > 0 ? String(task.estimatedCost) : "");
     setActualCost(task.actualCost > 0 ? String(task.actualCost) : "");
+    setLaborCost(task.laborCost > 0 ? String(task.laborCost) : "");
+    setMaterialCost(task.materialCost > 0 ? String(task.materialCost) : "");
+    setSupervisionCost(task.supervisionCost > 0 ? String(task.supervisionCost) : "");
+    setBeforeImages(task.beforeImages ?? []);
+    setDuringImages(task.duringImages ?? []);
+    setAfterImages(task.afterImages ?? []);
     setInitialized(true);
   }
 
@@ -141,10 +157,26 @@ export default function TaskDetailPage() {
 
   function handleSaveDetails() {
     type TaskSolution = "self_repair" | "replace_parts" | "outsource";
-    const updates: { solution?: TaskSolution; estimatedCost?: number; actualCost?: number } = {};
+    const updates: {
+      solution?: TaskSolution;
+      estimatedCost?: number;
+      actualCost?: number;
+      laborCost?: number;
+      materialCost?: number;
+      supervisionCost?: number;
+      beforeImages?: string[];
+      duringImages?: string[];
+      afterImages?: string[];
+    } = {};
     if (solution) updates.solution = solution as TaskSolution;
     if (estimatedCost) updates.estimatedCost = Number(estimatedCost);
     if (actualCost) updates.actualCost = Number(actualCost);
+    updates.laborCost = Number(laborCost) || 0;
+    updates.materialCost = Number(materialCost) || 0;
+    updates.supervisionCost = Number(supervisionCost) || 0;
+    updates.beforeImages = beforeImages;
+    updates.duringImages = duringImages;
+    updates.afterImages = afterImages;
     updateTask(task!.id, updates);
     addToast("success", "Đã lưu thông tin công việc.");
   }
@@ -158,7 +190,7 @@ export default function TaskDetailPage() {
       taskId: task!.id,
       userId: currentUser?.id ?? "u1",
       content: commentText.trim(),
-      imageUrls: [],
+      imageUrls: commentImages,
       createdAt: new Date().toISOString(),
     };
 
@@ -167,6 +199,7 @@ export default function TaskDetailPage() {
       logActivity(currentUser.id, `Thêm bình luận trên ${task!.code}`, "task", task!.id);
     }
     setCommentText("");
+    setCommentImages([]);
     setSubmittingComment(false);
   }
 
@@ -228,6 +261,14 @@ export default function TaskDetailPage() {
     }
     return null;
   }
+
+  // Compute totals from breakdown
+  const estLabor = Number(laborCost) || 0;
+  const estMaterial = Number(materialCost) || 0;
+  const estSupervision = Number(supervisionCost) || 0;
+  const computedTotal = estLabor + estMaterial + estSupervision;
+
+  const isOutsource = solution === "outsource" || task.solution === "outsource";
 
   return (
     <div className="flex flex-col gap-5 max-w-6xl mx-auto">
@@ -299,6 +340,28 @@ export default function TaskDetailPage() {
                   </button>
                 </div>
               )}
+
+              {/* Photo groups */}
+              <div className="col-span-2 flex flex-col gap-4 pt-2 border-t border-border-color">
+                <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wide">
+                  Ảnh công việc
+                </h3>
+                <PhotoUpload
+                  images={beforeImages}
+                  onChange={setBeforeImages}
+                  label="Ảnh trước khi sửa"
+                />
+                <PhotoUpload
+                  images={duringImages}
+                  onChange={setDuringImages}
+                  label="Ảnh trong khi sửa"
+                />
+                <PhotoUpload
+                  images={afterImages}
+                  onChange={setAfterImages}
+                  label="Ảnh sau khi sửa"
+                />
+              </div>
             </div>
           </Card>
 
@@ -321,49 +384,67 @@ export default function TaskDetailPage() {
                 />
               </div>
 
-              {/* Costs */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                    Chi phí dự tính (VND)
-                  </label>
-                  <div className="relative">
-                    <DollarSign size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
-                    <input
-                      type="number"
-                      value={estimatedCost}
-                      onChange={(e) => setEstimatedCost(e.target.value)}
+              {/* Cost breakdown */}
+              <div className="flex flex-col gap-3">
+                <p className="text-xs font-medium text-text-secondary">Chi phí dự kiến (VND)</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <CostInput
+                    label="Công thợ"
+                    value={laborCost}
+                    onChange={setLaborCost}
+                    placeholder="0"
+                  />
+                  <CostInput
+                    label="Vật tư"
+                    value={materialCost}
+                    onChange={setMaterialCost}
+                    placeholder="0"
+                  />
+                  {(solution === "outsource" || task.solution === "outsource") && (
+                    <CostInput
+                      label="Giám sát"
+                      value={supervisionCost}
+                      onChange={setSupervisionCost}
                       placeholder="0"
-                      className="w-full pl-7 pr-3 py-2 text-sm bg-surface border border-border-color rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-text-primary"
                     />
-                  </div>
-                  {estimatedCost && (
-                    <p className="text-xs text-text-secondary mt-1">
-                      {formatCurrency(Number(estimatedCost))}
-                    </p>
                   )}
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                    Chi phí thực tế (VND)
-                  </label>
-                  <div className="relative">
-                    <DollarSign size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
-                    <input
-                      type="number"
-                      value={actualCost}
-                      onChange={(e) => setActualCost(e.target.value)}
-                      placeholder="0"
-                      className="w-full pl-7 pr-3 py-2 text-sm bg-surface border border-border-color rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-text-primary"
-                    />
+
+                {/* Estimated total summary table */}
+                {computedTotal > 0 && (
+                  <div className="rounded-lg border border-border-color overflow-hidden text-sm">
+                    <CostRow label="Công thợ" amount={estLabor} />
+                    <CostRow label="Vật tư" amount={estMaterial} />
+                    {isOutsource && <CostRow label="Giám sát" amount={estSupervision} />}
+                    <div className="flex justify-between items-center px-3 py-2 bg-page-bg border-t border-border-color">
+                      <span className="text-xs font-semibold text-text-primary">Tổng dự kiến</span>
+                      <span className="text-sm font-bold text-text-primary">
+                        {formatCurrency(computedTotal)}
+                      </span>
+                    </div>
                   </div>
-                  {actualCost && (
-                    <p className="text-xs text-text-secondary mt-1">
-                      {formatCurrency(Number(actualCost))}
-                    </p>
-                  )}
-                </div>
+                )}
               </div>
+
+              {/* Actual cost breakdown display (if task has actual costs) */}
+              {(task.actualCost > 0) && (
+                <div className="flex flex-col gap-2">
+                  <p className="text-xs font-medium text-text-secondary">Chi phí thực tế</p>
+                  <div className="rounded-lg border border-border-color overflow-hidden text-sm">
+                    <CostRow label="Công thợ" amount={task.laborCost} />
+                    <CostRow label="Vật tư" amount={task.materialCost} />
+                    {task.solution === "outsource" && (
+                      <CostRow label="Giám sát" amount={task.supervisionCost} />
+                    )}
+                    <div className="flex justify-between items-center px-3 py-2 bg-page-bg border-t border-border-color">
+                      <span className="text-xs font-semibold text-text-primary">Tổng thực tế</span>
+                      <span className="text-sm font-bold text-text-primary">
+                        {formatCurrency(task.actualCost)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <Button variant="secondary" size="sm" className="self-start" onClick={handleSaveDetails}>
                 Lưu thông tin
@@ -404,6 +485,21 @@ export default function TaskDetailPage() {
                         </div>
                         <div className="bg-page-bg rounded-xl px-3 py-2.5">
                           <p className="text-sm text-text-primary leading-relaxed">{c.content}</p>
+                          {c.imageUrls.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {c.imageUrls.map((url, i) => (
+                                <div
+                                  key={url + i}
+                                  className="w-12 h-12 rounded-lg flex items-center justify-center text-white text-[9px] font-medium"
+                                  style={{
+                                    backgroundColor: `hsl(${(i * 67 + 200) % 360}, 55%, 60%)`,
+                                  }}
+                                >
+                                  IMG
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -425,6 +521,11 @@ export default function TaskDetailPage() {
                   placeholder="Thêm bình luận... (Ctrl+Enter để gửi)"
                   rows={3}
                   className="w-full px-3 py-2 text-sm bg-surface border border-border-color rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-text-primary placeholder:text-text-secondary/60 resize-none"
+                />
+                <PhotoUpload
+                  images={commentImages}
+                  onChange={setCommentImages}
+                  label="Đính kèm ảnh"
                 />
                 <div className="flex justify-end">
                   <Button
@@ -522,20 +623,43 @@ export default function TaskDetailPage() {
                 <h2 className="text-sm font-semibold text-text-primary">Tóm tắt chi phí</h2>
               </div>
               <div className="p-5 flex flex-col gap-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-text-secondary">Dự tính</span>
-                  <span className="text-sm font-semibold text-text-primary">
-                    {formatCurrency(task.estimatedCost)}
-                  </span>
-                </div>
-                {task.actualCost > 0 && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-text-secondary">Thực tế</span>
-                    <span className="text-sm font-semibold text-text-primary">
-                      {formatCurrency(task.actualCost)}
-                    </span>
+                {/* Estimated breakdown */}
+                {task.estimatedCost > 0 && (
+                  <div className="flex flex-col gap-1">
+                    <p className="text-xs font-semibold text-text-secondary mb-1">Chi phí dự kiến</p>
+                    <CostRowSmall label="Công thợ" amount={task.laborCost} />
+                    <CostRowSmall label="Vật tư" amount={task.materialCost} />
+                    {task.solution === "outsource" && task.supervisionCost > 0 && (
+                      <CostRowSmall label="Giám sát" amount={task.supervisionCost} />
+                    )}
+                    <div className="flex justify-between items-center pt-1.5 border-t border-border-color mt-1">
+                      <span className="text-xs text-text-secondary">Tổng</span>
+                      <span className="text-sm font-bold text-text-primary">
+                        {formatCurrency(task.estimatedCost)}
+                      </span>
+                    </div>
                   </div>
                 )}
+
+                {/* Actual breakdown */}
+                {task.actualCost > 0 && (
+                  <div className="flex flex-col gap-1 pt-2 border-t border-border-color">
+                    <p className="text-xs font-semibold text-text-secondary mb-1">Chi phí thực tế</p>
+                    <CostRowSmall label="Công thợ" amount={task.laborCost} />
+                    <CostRowSmall label="Vật tư" amount={task.materialCost} />
+                    {task.solution === "outsource" && task.supervisionCost > 0 && (
+                      <CostRowSmall label="Giám sát" amount={task.supervisionCost} />
+                    )}
+                    <div className="flex justify-between items-center pt-1.5 border-t border-border-color mt-1">
+                      <span className="text-xs text-text-secondary">Tổng</span>
+                      <span className="text-sm font-bold text-text-primary">
+                        {formatCurrency(task.actualCost)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Variance */}
                 {task.actualCost > 0 && task.estimatedCost > 0 && (
                   <div className="pt-2 border-t border-border-color flex justify-between items-center">
                     <span className="text-xs text-text-secondary">Chênh lệch</span>
@@ -559,6 +683,8 @@ export default function TaskDetailPage() {
   );
 }
 
+/* ─── Helpers ─────────────────────────────────────────────── */
+
 function InfoRow({
   label,
   value,
@@ -572,6 +698,54 @@ function InfoRow({
     <div className={fullWidth ? "col-span-2" : ""}>
       <p className="text-xs font-medium text-text-secondary mb-0.5">{label}</p>
       <p className="text-sm text-text-primary">{value}</p>
+    </div>
+  );
+}
+
+function CostInput({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="block text-xs text-text-secondary mb-1">{label}</label>
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder ?? "0"}
+        className="w-full px-3 py-2 text-sm bg-surface border border-border-color rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-text-primary"
+      />
+      {value && Number(value) > 0 && (
+        <p className="text-xs text-text-secondary mt-0.5">{formatCurrency(Number(value))}</p>
+      )}
+    </div>
+  );
+}
+
+function CostRow({ label, amount }: { label: string; amount: number }) {
+  if (amount <= 0) return null;
+  return (
+    <div className="flex justify-between items-center px-3 py-1.5 border-b border-border-color last:border-0">
+      <span className="text-xs text-text-secondary">{label}</span>
+      <span className="text-xs font-medium text-text-primary">{formatCurrency(amount)}</span>
+    </div>
+  );
+}
+
+function CostRowSmall({ label, amount }: { label: string; amount: number }) {
+  if (amount <= 0) return null;
+  return (
+    <div className="flex justify-between items-center">
+      <span className="text-xs text-text-secondary">{label}</span>
+      <span className="text-xs text-text-primary">{formatCurrency(amount)}</span>
     </div>
   );
 }

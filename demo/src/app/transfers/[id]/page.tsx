@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -9,6 +9,7 @@ import {
   Circle,
   Clock,
   XCircle,
+  Send,
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { Card } from "@/components/ui/Card";
@@ -57,12 +58,14 @@ function TimelineStep({
   byName,
   status,
   isLast,
+  notes,
 }: {
   label: string;
   date?: string;
   byName?: string;
   status: TimelineStepStatus;
   isLast?: boolean;
+  notes?: string;
 }) {
   const iconMap: Record<TimelineStepStatus, React.ReactNode> = {
     done: <CheckCircle2 size={18} className="text-success" />,
@@ -104,6 +107,9 @@ function TimelineStep({
         {byName && (
           <p className="text-xs text-text-tertiary mt-0.5">bởi {byName}</p>
         )}
+        {notes && (
+          <p className="text-xs text-text-secondary mt-1 italic">{notes}</p>
+        )}
       </div>
     </div>
   );
@@ -120,6 +126,8 @@ export default function TransferDetailPage({
   const router = useRouter();
   const { transfers, assets, pharmacies, users, currentUser, updateTransfer, addToast, logActivity } =
     useStore();
+
+  const [recipientNotes, setRecipientNotes] = useState("");
 
   const transfer = transfers.find((t) => t.id === id);
 
@@ -147,6 +155,7 @@ export default function TransferDetailPage({
   const toUser = users.find((u) => u.id === tr.toUserId);
   const performer = users.find((u) => u.id === tr.performedById);
   const approver = users.find((u) => u.id === tr.approvedById);
+  const recipientConfirmer = users.find((u) => u.id === tr.recipientConfirmedById);
   const assetPharmacy = pharmacies.find((p) => p.id === asset?.pharmacyId);
 
   /* ── Actions ── */
@@ -171,61 +180,91 @@ export default function TransferDetailPage({
     addToast("info", `Đã hủy phiếu ${tr.code}.`);
   }
 
-  function handleComplete() {
-    updateTransfer(tr.id, { status: "completed" });
+  function handleSendToRecipient() {
+    updateTransfer(tr.id, { status: "awaiting_recipient" });
     if (currentUser) {
-      logActivity(currentUser.id, `Hoàn tất phiếu ${tr.code}`, "transfer", tr.id);
+      logActivity(currentUser.id, `Gửi xác nhận phiếu ${tr.code}`, "transfer", tr.id);
     }
-    addToast("success", `Đã hoàn tất phiếu ${tr.code}.`);
+    addToast("success", `Đã gửi phiếu ${tr.code} chờ xác nhận nơi nhận.`);
+  }
+
+  function handleRecipientConfirm() {
+    const now = new Date().toISOString();
+    updateTransfer(tr.id, {
+      status: "completed",
+      recipientConfirmed: true,
+      recipientConfirmedById: currentUser?.id,
+      recipientConfirmedAt: now,
+      recipientNotes: recipientNotes.trim() || undefined,
+    });
+    if (currentUser) {
+      logActivity(currentUser.id, `Xác nhận nhận phiếu ${tr.code}`, "transfer", tr.id);
+    }
+    addToast("success", `Đã xác nhận nhận phiếu ${tr.code}. Hoàn tất!`);
+    setRecipientNotes("");
   }
 
   /* ── Timeline ── */
-  type Step = { label: string; date?: string; byName?: string; status: TimelineStepStatus };
+  type Step = { label: string; date?: string; byName?: string; status: TimelineStepStatus; notes?: string };
   const timelineSteps: Step[] = (() => {
-    const created: Step = {
-      label: "Đã tạo phiếu",
-      date: tr.transferDate
-        ? `${tr.transferDate}T00:00:00Z`
-        : undefined,
+    if (tr.status === "cancelled") {
+      return [
+        {
+          label: "Đã tạo phiếu",
+          date: tr.transferDate ? `${tr.transferDate}T00:00:00Z` : undefined,
+          byName: performer?.name,
+          status: "done",
+        },
+        { label: "Đã hủy", status: "skipped" },
+      ];
+    }
+
+    const isDone = (s: string) =>
+      ["approved", "awaiting_recipient", "completed"].includes(s);
+
+    const createdStep: Step = {
+      label: "Tạo phiếu",
+      date: tr.transferDate ? `${tr.transferDate}T00:00:00Z` : undefined,
       byName: performer?.name,
       status: "done",
     };
 
     const approvedStep: Step = {
-      label: "Đã phê duyệt",
+      label: "Phê duyệt",
       date: tr.approvedAt,
       byName: approver?.name,
-      status:
-        tr.status === "cancelled"
-          ? "skipped"
-          : tr.approvedAt
-          ? "done"
-          : tr.status === "draft"
-          ? "pending"
-          : "active",
+      status: isDone("approved") || tr.status === "approved" ? (tr.approvedAt ? "done" : "active") : "pending",
     };
+    // Fix: if status is draft, approvedStep is pending
+    if (tr.status === "draft") approvedStep.status = "pending";
+    else if (tr.approvedAt) approvedStep.status = "done";
+    else approvedStep.status = "active";
 
-    const completedStep: Step = {
-      label: "Đã hoàn tất",
+    const awaitingStep: Step = {
+      label: "Chờ xác nhận nơi nhận",
       status:
-        tr.status === "cancelled"
-          ? "skipped"
-          : tr.status === "completed"
-          ? "done"
-          : tr.status === "approved"
-          ? "active"
+        tr.status === "completed" || tr.status === "awaiting_recipient"
+          ? tr.status === "completed"
+            ? "done"
+            : "active"
           : "pending",
     };
 
-    if (tr.status === "cancelled") {
-      return [
-        created,
-        { label: "Đã hủy", status: "skipped" as TimelineStepStatus },
-      ];
-    }
+    const completedStep: Step = {
+      label: "Hoàn tất",
+      date: tr.recipientConfirmedAt,
+      byName: recipientConfirmer?.name,
+      notes: tr.recipientNotes,
+      status: tr.status === "completed" ? "done" : "pending",
+    };
 
-    return [created, approvedStep, completedStep];
+    return [createdStep, approvedStep, awaitingStep, completedStep];
   })();
+
+  const showActions =
+    tr.status === "draft" ||
+    tr.status === "approved" ||
+    tr.status === "awaiting_recipient";
 
   /* ── Render ── */
   return (
@@ -345,6 +384,27 @@ export default function TransferDetailPage({
               }
             />
           )}
+
+          {tr.recipientConfirmed && tr.recipientConfirmedById && (
+            <InfoRow
+              label="Nơi nhận xác nhận"
+              value={
+                <>
+                  {recipientConfirmer?.name ?? tr.recipientConfirmedById}
+                  {tr.recipientConfirmedAt && (
+                    <span className="text-text-secondary font-normal ml-1.5">
+                      ({formatDateTime(tr.recipientConfirmedAt)})
+                    </span>
+                  )}
+                  {tr.recipientNotes && (
+                    <p className="text-xs text-text-secondary font-normal mt-0.5 italic">
+                      {tr.recipientNotes}
+                    </p>
+                  )}
+                </>
+              }
+            />
+          )}
         </dl>
       </Card>
 
@@ -362,19 +422,20 @@ export default function TransferDetailPage({
               byName={step.byName}
               status={step.status}
               isLast={i === timelineSteps.length - 1}
+              notes={step.notes}
             />
           ))}
         </div>
       </Card>
 
       {/* Action buttons */}
-      {(tr.status === "draft" || tr.status === "approved") && (
+      {showActions && (
         <Card>
           <div className="px-6 py-4">
             <h2 className="text-base font-semibold text-text-primary mb-3">Hành động</h2>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex flex-col gap-3">
               {tr.status === "draft" && (
-                <>
+                <div className="flex gap-2 flex-wrap">
                   <Button onClick={handleApprove}>
                     <CheckCircle2 size={16} />
                     Phê duyệt
@@ -383,13 +444,37 @@ export default function TransferDetailPage({
                     <XCircle size={16} />
                     Hủy phiếu
                   </Button>
-                </>
+                </div>
               )}
+
               {tr.status === "approved" && (
-                <Button onClick={handleComplete}>
-                  <CheckCircle2 size={16} />
-                  Hoàn tất
-                </Button>
+                <div className="flex gap-2 flex-wrap">
+                  <Button onClick={handleSendToRecipient}>
+                    <Send size={16} />
+                    Gửi xác nhận
+                  </Button>
+                </div>
+              )}
+
+              {tr.status === "awaiting_recipient" && (
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm text-text-secondary">
+                    Nơi nhận vui lòng xác nhận đã nhận tài sản:
+                  </p>
+                  <textarea
+                    value={recipientNotes}
+                    onChange={(e) => setRecipientNotes(e.target.value)}
+                    placeholder="Ghi chú (tuỳ chọn): tình trạng tài sản khi nhận..."
+                    rows={3}
+                    className="w-full px-3 py-2 text-sm bg-surface border border-border-color rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-text-primary placeholder:text-text-secondary/60 resize-none"
+                  />
+                  <div className="flex gap-2">
+                    <Button onClick={handleRecipientConfirm}>
+                      <CheckCircle2 size={16} />
+                      Xác nhận nhận
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
           </div>

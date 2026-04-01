@@ -10,6 +10,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PhotoUpload } from "@/components/ui/PhotoUpload";
 import { formatDate, getLevelLabel, getStatusLabel } from "@/lib/utils";
 import type { IncidentReport, Task, IncidentLevel } from "@/types";
 
@@ -64,6 +65,7 @@ interface CreateIncidentForm {
   level: string;
   title: string;
   description: string;
+  imageUrls: string[];
 }
 
 const EMPTY_FORM: CreateIncidentForm = {
@@ -72,6 +74,7 @@ const EMPTY_FORM: CreateIncidentForm = {
   level: "2",
   title: "",
   description: "",
+  imageUrls: [],
 };
 
 export default function IncidentsPage() {
@@ -166,13 +169,11 @@ export default function IncidentsPage() {
       level,
       title: form.title.trim(),
       description: form.description.trim(),
-      imageUrls: [],
+      imageUrls: form.imageUrls,
       status: "open",
       createdAt: now,
       taskId,
     };
-
-    const asset = assets.find((a) => a.id === form.assetId);
     const pharmacy = pharmacies.find((p) => p.id === form.pharmacyId);
 
     const newTask: Task = {
@@ -190,6 +191,9 @@ export default function IncidentsPage() {
       solution: null,
       estimatedCost: 0,
       actualCost: 0,
+      laborCost: 0,
+      materialCost: 0,
+      supervisionCost: 0,
       responseSla,
       completionSla,
       slaStatus: "on_time",
@@ -439,6 +443,14 @@ export default function IncidentsPage() {
               className="w-full px-3 py-2 text-sm bg-surface border border-border-color rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-text-primary placeholder:text-text-secondary/60 resize-none"
             />
           </div>
+
+          {/* Photos */}
+          <PhotoUpload
+            images={form.imageUrls}
+            onChange={(imgs) => setForm((prev) => ({ ...prev, imageUrls: imgs }))}
+            label="Ảnh sự cố"
+            required
+          />
 
           {/* Info box */}
           <div className="flex items-start gap-2 p-3 bg-primary-light rounded-lg">
