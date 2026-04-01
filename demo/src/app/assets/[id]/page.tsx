@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft, Package, Building2, MapPin, Calendar,
-  User, Wrench, ClipboardList, QrCode, DollarSign,
+  User, Wrench, ClipboardList, QrCode, DollarSign, Clock,
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { Card } from "@/components/ui/Card";
@@ -144,7 +144,21 @@ export default function AssetDetailPage() {
             />
             <InfoRow
               icon={<DollarSign size={14} className="text-text-secondary/60" />}
-              label="Chi phí sửa chữa"
+              label="Đơn giá ban đầu"
+              value={
+                <span className="text-text-primary font-semibold">
+                  {formatCurrency(asset.originalCost)}
+                </span>
+              }
+            />
+            <InfoRow
+              icon={<Clock size={14} className="text-text-secondary/60" />}
+              label="Khấu hao"
+              value={`${asset.depreciationMonths} tháng`}
+            />
+            <InfoRow
+              icon={<DollarSign size={14} className="text-text-secondary/60" />}
+              label="Tổng chi phí sửa chữa"
               value={
                 <span className={asset.totalRepairCost > 0 ? "text-warning font-semibold" : "text-success font-semibold"}>
                   {formatCurrency(asset.totalRepairCost)}

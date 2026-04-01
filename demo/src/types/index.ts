@@ -44,6 +44,8 @@ export interface Asset {
   pharmacyId: string;
   location: string; // e.g. "Khu vực quầy", "Phòng kho"
   status: AssetStatus;
+  originalCost: number; // đơn giá ban đầu (VND)
+  depreciationMonths: number; // thời gian khấu hao (tháng)
   installDate: string;
   responsibleUserId: string;
   imageUrl?: string;

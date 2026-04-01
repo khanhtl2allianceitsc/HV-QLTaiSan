@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Package, Search, Plus, ChevronRight } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -31,6 +32,8 @@ interface FormState {
   pharmacyId: string;
   location: string;
   status: AssetStatus;
+  originalCost: string;
+  depreciationMonths: string;
 }
 
 const EMPTY_FORM: FormState = {
@@ -41,6 +44,8 @@ const EMPTY_FORM: FormState = {
   pharmacyId: "",
   location: "",
   status: "active",
+  originalCost: "",
+  depreciationMonths: "",
 };
 
 export default function AssetsPage() {
@@ -112,6 +117,8 @@ export default function AssetsPage() {
       pharmacyId: form.pharmacyId,
       location: form.location.trim(),
       status: form.status,
+      originalCost: Number(form.originalCost) || 0,
+      depreciationMonths: Number(form.depreciationMonths) || 36,
       installDate: new Date().toISOString().slice(0, 10),
       responsibleUserId: currentUser?.id ?? "",
       totalRepairCost: 0,
@@ -209,7 +216,8 @@ export default function AssetsPage() {
                   <th className="text-left text-xs font-semibold text-text-secondary px-4 py-3 hidden lg:table-cell">Quầy thuốc</th>
                   <th className="text-left text-xs font-semibold text-text-secondary px-4 py-3 hidden sm:table-cell">Danh mục</th>
                   <th className="text-left text-xs font-semibold text-text-secondary px-4 py-3">Trạng thái</th>
-                  <th className="text-left text-xs font-semibold text-text-secondary px-4 py-3 hidden md:table-cell">Vị trí</th>
+                  <th className="text-right text-xs font-semibold text-text-secondary px-4 py-3 hidden md:table-cell">Đơn giá</th>
+                  <th className="text-left text-xs font-semibold text-text-secondary px-4 py-3 hidden lg:table-cell">Khấu hao</th>
                   <th className="px-4 py-3 w-8" />
                 </tr>
               </thead>
@@ -233,7 +241,8 @@ export default function AssetsPage() {
                     <td className="px-4 py-3">
                       <Badge status={asset.status} size="sm" />
                     </td>
-                    <td className="px-4 py-3 text-text-secondary hidden md:table-cell">{asset.location}</td>
+                    <td className="px-4 py-3 text-text-secondary hidden md:table-cell text-right font-medium tabular-nums">{formatCurrency(asset.originalCost)}</td>
+                    <td className="px-4 py-3 text-text-secondary hidden lg:table-cell">{asset.depreciationMonths} tháng</td>
                     <td className="px-4 py-3">
                       <ChevronRight size={14} className="text-text-secondary/40" />
                     </td>
@@ -334,6 +343,34 @@ export default function AssetsPage() {
               placeholder="VD: Quầy thu ngân, Phòng kho..."
               className="h-9 px-3 text-sm bg-surface border border-border-color rounded-lg outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-colors"
             />
+          </div>
+
+          {/* Original Cost + Depreciation */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-text-secondary uppercase tracking-wide">
+                Đơn giá (VND)
+              </label>
+              <input
+                type="number"
+                value={form.originalCost}
+                onChange={(e) => handleFormChange("originalCost", e.target.value)}
+                placeholder="VD: 12000000"
+                className="h-9 px-3 text-sm bg-surface border border-border-color rounded-lg outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-colors"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-text-secondary uppercase tracking-wide">
+                Khấu hao (tháng)
+              </label>
+              <input
+                type="number"
+                value={form.depreciationMonths}
+                onChange={(e) => handleFormChange("depreciationMonths", e.target.value)}
+                placeholder="VD: 36"
+                className="h-9 px-3 text-sm bg-surface border border-border-color rounded-lg outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-colors"
+              />
+            </div>
           </div>
 
           {/* Status */}
