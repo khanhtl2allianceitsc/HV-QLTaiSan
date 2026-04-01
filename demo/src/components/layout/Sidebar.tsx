@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   UserCircle,
+  ArrowRightLeft,
 } from "lucide-react";
 
 /* ─── Types ──────────────────────────────────────────────────── */
@@ -36,6 +37,7 @@ const navItems: NavItem[] = [
   { label: "Quầy thuốc",    href: "/pharmacies",  icon: Store },
   { label: "Tài sản",       href: "/assets",      icon: Package },
   { label: "Tài sản của tôi", href: "/my-assets", icon: UserCircle },
+  { label: "Điều chuyển",  href: "/transfers",   icon: ArrowRightLeft },
   { label: "Kiểm kê",       href: "/inventory",   icon: ClipboardCheck },
   { label: "Báo hỏng",      href: "/incidents",   icon: AlertTriangle,  badgeKey: "incidents" },
   { label: "Công việc",     href: "/tasks",       icon: ListTodo,       badgeKey: "tasks" },

@@ -56,6 +56,13 @@ const STATUS_MAP: Record<string, StatusConfig> = {
   pending:              { dot: "#475569", bg: "#F1F5F9", text: "#475569" },
   planned:              { dot: "#475569", bg: "#F1F5F9", text: "#475569" },
   disposed:             { dot: "#475569", bg: "#F1F5F9", text: "#475569" },
+  draft:                { dot: "#475569", bg: "#F1F5F9", text: "#475569" },
+
+  // Red cancellation
+  cancelled:            { dot: "#DC2626", bg: "#FEE2E2", text: "#DC2626" },
+
+  // Blue approved
+  approved:             { dot: "#2563EB", bg: "#DBEAFE", text: "#2563EB" },
 };
 
 const DEFAULT_CONFIG: StatusConfig = {
@@ -94,6 +101,9 @@ const STATUS_LABELS: Record<string, string> = {
   open: "Đang mở",
   warning: "Cảnh báo",
   info: "Thông tin",
+  draft: "Nháp",
+  approved: "Đã duyệt",
+  cancelled: "Đã hủy",
 };
 
 export function Badge({ status, label, size = "md" }: BadgeProps) {

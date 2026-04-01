@@ -26,6 +26,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/pharmacies":    "Quầy thuốc",
   "/assets":        "Tài sản",
   "/my-assets":     "Tài sản của tôi",
+  "/transfers":     "Điều chuyển & Bàn giao",
   "/inventory":     "Kiểm kê",
   "/incidents":     "Báo hỏng",
   "/tasks":         "Công việc",

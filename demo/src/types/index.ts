@@ -160,6 +160,7 @@ export interface ActivityLog {
 
 export interface TransferRecord {
   id: string;
+  code: string; // e.g. "DC-001" for điều chuyển, "BG-001" for bàn giao
   assetId: string;
   type: 'pharmacy_transfer' | 'responsibility_transfer';
   fromPharmacyId?: string;
@@ -169,6 +170,10 @@ export interface TransferRecord {
   reason: string;
   transferDate: string;
   performedById: string;
+  status: 'draft' | 'approved' | 'completed' | 'cancelled';
+  notes?: string;
+  approvedById?: string;
+  approvedAt?: string;
 }
 
 // For the settings/config

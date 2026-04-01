@@ -55,6 +55,10 @@ export interface StoreState {
   // Inventory
   updateInventoryItem: (id: string, updates: Partial<InventoryItem>) => void;
 
+  // Transfers
+  addTransfer: (transfer: TransferRecord) => void;
+  updateTransfer: (id: string, updates: Partial<TransferRecord>) => void;
+
   // Toasts
   addToast: (type: ToastType, message: string) => void;
   dismissToast: (id: string) => void;
@@ -121,6 +125,12 @@ export const useStore = create<StoreState>()(
       // Inventory
       updateInventoryItem: (id, updates) => set((s) => ({
         inventoryItems: s.inventoryItems.map((i) => i.id === id ? { ...i, ...updates } : i),
+      })),
+
+      // Transfers
+      addTransfer: (transfer) => set((s) => ({ transfers: [...s.transfers, transfer] })),
+      updateTransfer: (id, updates) => set((s) => ({
+        transfers: s.transfers.map((t) => t.id === id ? { ...t, ...updates } : t),
       })),
 
       // Toasts
