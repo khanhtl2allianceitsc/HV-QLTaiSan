@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Package, Search, Plus, ChevronRight } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { calcRemainingValue } from "@/lib/depreciation";
 import { useStore } from "@/store/useStore";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -217,6 +218,7 @@ export default function AssetsPage() {
                   <th className="text-left text-xs font-semibold text-text-secondary px-4 py-3 hidden sm:table-cell">Danh mục</th>
                   <th className="text-left text-xs font-semibold text-text-secondary px-4 py-3">Trạng thái</th>
                   <th className="text-right text-xs font-semibold text-text-secondary px-4 py-3 hidden md:table-cell">Đơn giá</th>
+                  <th className="text-right text-xs font-semibold text-text-secondary px-4 py-3 hidden md:table-cell">Còn lại</th>
                   <th className="text-left text-xs font-semibold text-text-secondary px-4 py-3 hidden lg:table-cell">Khấu hao</th>
                   <th className="px-4 py-3 w-8" />
                 </tr>
@@ -242,6 +244,17 @@ export default function AssetsPage() {
                       <Badge status={asset.status} size="sm" />
                     </td>
                     <td className="px-4 py-3 text-text-secondary hidden md:table-cell text-right font-medium tabular-nums">{formatCurrency(asset.originalCost)}</td>
+                    <td className="px-4 py-3 hidden md:table-cell text-right font-medium tabular-nums">
+                      {(() => {
+                        const rv = calcRemainingValue(asset.originalCost, asset.depreciationMonths, asset.installDate);
+                        const pct = asset.originalCost > 0 ? Math.round((rv / asset.originalCost) * 100) : 0;
+                        return (
+                          <span className={pct > 50 ? "text-success" : pct > 20 ? "text-warning" : "text-danger"}>
+                            {formatCurrency(rv)}
+                          </span>
+                        );
+                      })()}
+                    </td>
                     <td className="px-4 py-3 text-text-secondary hidden lg:table-cell">{asset.depreciationMonths} tháng</td>
                     <td className="px-4 py-3">
                       <ChevronRight size={14} className="text-text-secondary/40" />

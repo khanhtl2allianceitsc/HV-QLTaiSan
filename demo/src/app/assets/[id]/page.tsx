@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatDate, formatCurrency, getStatusLabel } from "@/lib/utils";
+import { calcRemainingValue, calcDepreciationPercent } from "@/lib/depreciation";
 
 type TabKey = "repair" | "inventory" | "transfer";
 
@@ -186,35 +187,69 @@ export default function AssetDetailPage() {
           </div>
         </Card>
 
-        {/* QR Code placeholder */}
-        <Card className="p-6 flex flex-col items-center justify-center gap-4">
-          <h2 className="text-sm font-semibold text-text-primary self-start w-full">Mã QR</h2>
-          <div className="w-40 h-40 border-2 border-border-color rounded-xl flex flex-col items-center justify-center gap-3 bg-page-bg relative overflow-hidden">
-            {/* QR grid decoration */}
-            <div className="absolute inset-2 grid grid-cols-7 grid-rows-7 gap-px opacity-20">
-              {Array.from({ length: 49 }).map((_, i) => (
-                <div
-                  key={i}
-                  className={[
-                    "rounded-[1px]",
-                    Math.random() > 0.5 ? "bg-text-primary" : "bg-transparent",
-                  ].join(" ")}
-                />
-              ))}
-            </div>
-            {/* Corner markers */}
-            <div className="absolute top-2 left-2 w-7 h-7 border-3 border-text-primary rounded-sm" style={{ borderWidth: 3 }} />
-            <div className="absolute top-2 right-2 w-7 h-7 border-3 border-text-primary rounded-sm" style={{ borderWidth: 3 }} />
-            <div className="absolute bottom-2 left-2 w-7 h-7 border-3 border-text-primary rounded-sm" style={{ borderWidth: 3 }} />
-            <QrCode size={28} className="text-text-primary relative z-10" />
-          </div>
-          <div className="text-center">
-            <p className="font-mono text-sm font-bold text-text-primary">{asset.code}</p>
-            <p className="text-xs text-text-secondary mt-0.5 leading-relaxed max-w-[140px] text-center">{asset.name}</p>
-          </div>
-          <p className="text-xs text-text-secondary/60 text-center">Quét mã để xem chi tiết tài sản</p>
+        {/* Valuation & Liquidation card */}
+        <Card className="p-6 flex flex-col gap-4">
+          <h2 className="text-sm font-semibold text-text-primary">Giá trị & Thanh lý</h2>
+          {(() => {
+            const remaining = calcRemainingValue(asset.originalCost, asset.depreciationMonths, asset.installDate);
+            const depPct = calcDepreciationPercent(asset.depreciationMonths, asset.installDate);
+            const remainPct = 100 - depPct;
+            return (
+              <>
+                <div className="space-y-3">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-text-secondary">Đơn giá ban đầu</span>
+                    <span className="font-semibold text-text-primary">{formatCurrency(asset.originalCost)}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-text-secondary">Đã khấu hao</span>
+                    <span className="font-semibold text-text-primary">{depPct}%</span>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="w-full h-2.5 bg-page-bg rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${remainPct}%`,
+                        backgroundColor: remainPct > 50 ? 'var(--success)' : remainPct > 20 ? 'var(--warning)' : 'var(--danger)',
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-text-secondary">Giá trị còn lại</span>
+                    <span className={`font-bold text-base ${remainPct > 50 ? "text-success" : remainPct > 20 ? "text-warning" : "text-danger"}`}>
+                      {formatCurrency(remaining)}
+                    </span>
+                  </div>
+                </div>
+                {/* Liquidation suggestion */}
+                <div className="border-t border-border-color pt-3 mt-1">
+                  <p className="text-xs text-text-secondary mb-2">Giá thanh lý đề xuất</p>
+                  <p className="text-lg font-bold text-primary">
+                    {formatCurrency(Math.round(remaining * 0.7))}
+                  </p>
+                  <p className="text-[11px] text-text-tertiary mt-1">~70% giá trị còn lại</p>
+                </div>
+              </>
+            );
+          })()}
         </Card>
       </div>
+
+      {/* QR Code */}
+      <Card className="p-6 flex items-center gap-6 flex-wrap">
+        <div className="w-28 h-28 border-2 border-border-color rounded-xl flex flex-col items-center justify-center gap-2 bg-page-bg relative overflow-hidden flex-shrink-0">
+          <div className="absolute top-1.5 left-1.5 w-5 h-5 border-2 border-text-primary rounded-sm" />
+          <div className="absolute top-1.5 right-1.5 w-5 h-5 border-2 border-text-primary rounded-sm" />
+          <div className="absolute bottom-1.5 left-1.5 w-5 h-5 border-2 border-text-primary rounded-sm" />
+          <QrCode size={24} className="text-text-primary relative z-10" />
+        </div>
+        <div>
+          <p className="font-mono text-sm font-bold text-text-primary">{asset.code}</p>
+          <p className="text-xs text-text-secondary mt-0.5">{asset.name}</p>
+          <p className="text-xs text-text-tertiary mt-1">Quét mã để xem chi tiết tài sản</p>
+        </div>
+      </Card>
 
       {/* Tabs */}
       <div className="flex gap-1 bg-surface border border-border-color rounded-xl p-1 self-start">
